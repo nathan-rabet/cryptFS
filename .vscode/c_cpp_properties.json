@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Linux - GCC C99",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu99",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "-Werror -Wall"
+            ],
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }
+    ],
+    "version": 4
+}
