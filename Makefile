@@ -1,8 +1,14 @@
+# Makefile color functions
+greentext = "\e[32m$(1)\e[0m"
+yellowtext = "\e[33m$(1)\e[0m"
+redtext = "\e[31m$(1)\e[0m"
+bluetext = "\e[34m$(1)\e[0m"
 
 # Compiler configuration
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -pedantic -Iinclude
 BUILD = build
+BUILD_VM = $(BUILD)/vm
 
 # Source files to compile
 SRC = $(shell find src -name '*.c')
@@ -11,55 +17,73 @@ OBJS = $(SRC:.c=.o)
 # Kernel module configuration
 PWD = $(shell pwd)
 
-QCOW_IMG_NAME = ubuntu_dev.qcow2
-
-VM_CONF_FILE = vm.conf
-VM_CONF_IMG_NAME = $(VM_CONF_FILE).img
-
-VM_PASS = ubuntu
+IMG_NAME = ubuntu_dev.img
+IMG_NAME_BACKUP = $(IMG_NAME).bak
+IMG_SSH = ssh.img
 
 all: virtual-machine
 	
-# Build directories
+# Ubuntu image downloading/restoring
+$(BUILD_VM)/$(IMG_NAME):
 
-# Linux image creation
-$(BUILD)/$(QCOW_IMG_NAME):
-	mkdir -p $(BUILD) && \
-	cd $(BUILD) && \
-	wget -nc https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img && \
-	sudo virt-customize -a focal-server-cloudimg-amd64.img --root-password password:$(VM_PASS) && \
-	qemu-img create -f qcow2 -b focal-server-cloudimg-amd64.img $(QCOW_IMG_NAME) 5G
-	@echo "\e[32mUbuntu image successfully created\e[0m"
+# Check if the backup exists
+ifeq ($(shell test -e $(BUILD_VM)/$(IMG_NAME_BACKUP);echo $$?),0)
+	$(MAKE) restore
+else
+	mkdir -p $(BUILD_VM)
+	@echo $(call bluetext,"Downloading Ubuntu image...")
+	wget https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img -O $(BUILD_VM)/$(IMG_NAME)
+	@echo $(call greentext "Image $(BUILD_VM)/$(IMG_NAME) downloaded")
 
+	@echo $(call bluetext,"Backuping $(BUILD_VM)/$(IMG_NAME)...")
+	cp $(BUILD_VM)/$(IMG_NAME) $(BUILD_VM)/$(IMG_NAME_BACKUP)
+	@echo $(call greentext,"Image $(BUILD_VM)/$(IMG_NAME) backed up")
+	@echo $(call bluetext,"\nUse 'make restore' to restore the image")
+	@sleep 3
+endif
+
+# SSH image creation
+$(BUILD_VM)/$(IMG_SSH): $(BUILD_VM)/$(IMG_NAME)
+	@echo $(call bluetext,"Creating SSH image...")
+	cat ~/.ssh/id_rsa > /dev/null 2>&1 || ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''
+	cp vm/ssh.config.template $(BUILD_VM)/ssh.config
+	sed -i 's/USERNAME/$(shell whoami)/g' $(BUILD_VM)/ssh.config
+	sed -i 's#PUBKEY#$(shell cat ~/.ssh/id_rsa.pub)#g' $(BUILD_VM)/ssh.config
+
+	cloud-localds --disk-format qcow2 $(BUILD_VM)/ssh.img $(BUILD_VM)/ssh.config
+	@echo $(call greentext,"SSH image created")
+
+# Install dependencies
 dependencies:
-	sudo apt update && sudo apt install -y \
-		gcc \
+	sudo apt update
+	sudo apt install -y \
 		wget \
-		bison \
-		build-essential \
-		flex \
-		git \
-		libelf-dev \
-		libssl-dev \
-		ncurses-dev \
 		qemu \
 		qemu-system-x86 \
-		cloud-image-utils \
-		libguestfs-tools
+		libguestfs-tools \
+		cloud-image-utils
 
-	@echo "\e[32mDependencies installed\e[0m"
+	@echo $(call greentext, "Dependencies installed")
 
-modules: kernel
-	@echo "\e[32mModules compiled\e[0m"
-
-kernel: dependencies $(BUILD)/$(QCOW_IMG_NAME)
-	@echo "\e[32mKernel compiled\e[0m"
-
-
-virtual-machine: kernel
-	@echo "\e[32mRuinning QEMU (x86_64)\e[0m"
+# Launch virtual machine (qemu)
+virtual-machine: $(BUILD_VM)/$(IMG_SSH) $(BUILD_VM)/$(IMG_NAME)
+	@echo $(call greentext,"Running VM")
+	@echo $(call greentext,"This will take a some minutes to boot...")
+	@sleep 2
+	@echo $(call bluetext,"You will be able to connect to the VM using SSH with the following command:")
+	@echo $(call bluetext,"	ssh $(shell whoami)@localhost -p 2222")
+	@sleep 5
 	qemu-system-x86_64 \
-    -enable-kvm \
-    -m 2048 \
-    -drive file=$(BUILD)/$(QCOW_IMG_NAME),media=disk,if=virtio
-	-drive file=$(VM_CONF_IMG_NAME),format=raw
+	-enable-kvm \
+	-smp 2 \
+	-m 1024 \
+	-nographic \
+	-hda $(BUILD_VM)/$(IMG_NAME) \
+	-hdb $(BUILD_VM)/$(IMG_SSH) \
+	-nic user,hostfwd=tcp::2222-:22
+
+# Restore non-modified image (in case of existing backup)
+restore: $(BUILD_VM)/$(IMG_NAME_BACKUP)
+	@echo $(call bluetext,"Restoring image...")
+	cp $(BUILD_VM)/$(IMG_NAME_BACKUP) $(BUILD_VM)/$(IMG_NAME)
+	@echo $(call greentext,"Image restored")
