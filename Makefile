@@ -20,7 +20,7 @@ PWD = $(shell pwd)
 IMG_NAME = ubuntu_dev.img
 IMG_NAME_BACKUP = $(IMG_NAME).bak
 IMG_SSH = ssh.img
-
+DIR_VERSION =  linux-5.13.1
 all: virtual-machine
 	
 # Ubuntu image downloading/restoring
@@ -55,13 +55,18 @@ $(BUILD_VM)/$(IMG_SSH): $(BUILD_VM)/$(IMG_NAME)
 
 # Install dependencies
 dependencies:
-	sudo apt update
-	sudo apt install -y \
-		wget \
-		qemu \
-		qemu-system-x86 \
-		libguestfs-tools \
-		cloud-image-utils
+	./package.sh
+	wget https://cdn.kernel.org/pub/linux/kernel/v5.x/$(DIR_VERSION).tar.xz
+	tar xvf  $(DIR_VERSION).tar.xz
+	cd $(DIR_VERSION) && make defconfig
+	cd $(DIR_VERSION) && make kvm_guest.config
+	
+	@echo "CONFIG_KCOV=y" >> $(DIR_VERSION)/.config
+	@echo "CONFIG_DEBUG_INFO=y" >> $(DIR_VERSION)/.config
+	@echo "CONFIG_KASAN=y" >> $(DIR_VERSION)/.config
+	@echo "CONFIG_KASAN_INLINE=y" >> $(DIR_VERSION)/.config
+	cd $(DIR_VERSION) && make olddefconfig
+	cd $(DIR_VERSION) && make -j`nproc`
 
 	@echo $(call greentext, "Dependencies installed")
 
@@ -80,7 +85,10 @@ virtual-machine: $(BUILD_VM)/$(IMG_SSH) $(BUILD_VM)/$(IMG_NAME)
 	-nographic \
 	-hda $(BUILD_VM)/$(IMG_NAME) \
 	-hdb $(BUILD_VM)/$(IMG_SSH) \
-	-nic user,hostfwd=tcp::2222-:22
+	-nic user,hostfwd=tcp::2222-:22 \
+	-kernel $KERNEL/arch/x86/boot/bzImage \
+	-pidfile vm.pid
+	2>&1 | tee vm.log
 
 # Restore non-modified image (in case of existing backup)
 restore: $(BUILD_VM)/$(IMG_NAME_BACKUP)
