@@ -3,7 +3,8 @@
         {
             "name": "Linux - GCC C99",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/usr/src/linux-headers-5.13.0-41-generic/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
