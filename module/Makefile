@@ -2,19 +2,11 @@
 ### MODULE MAKEFILE ###
 #######################
 
-# Makefile color functions
-greentext = "\e[32m$(1)\e[0m"
-yellowtext = "\e[33m$(1)\e[0m"
-redtext = "\e[31m$(1)\e[0m"
-bluetext = "\e[34m$(1)\e[0m"
-
-MODULE_NAME = cryptolib
-MODULE_FILENAME = $(MODULE_NAME).ko
-
-BUILD = ../build
-BUILD_MODULE = $(BUILD)/module
-
 ifeq ($(KERNELRELEASE),)
+
+PROJECT_DIR ?= ..
+
+include $(PROJECT_DIR)/global.mk
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 COMPILATION_FILES = *.o *~ core .depend .*.cmd *.ko *.mod.c *.tmp_versions *.mod *.order *.symvers
