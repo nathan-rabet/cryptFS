@@ -97,10 +97,6 @@ endif
 	sudo virt-customize -a $(BUILD_VM)/$(IMG_NAME_TMP) --run-command 'cd /home/$(PROJECT_SRC) \
 		&& make modules KERNELDIR=`find /lib/modules/*/build`'
 	@echo $(call greentext,"Project compiled in the VM")
-
-	@echo $(call bluetext,"Loading module in the VM")
-	sudo virt-customize -a $(BUILD_VM)/$(IMG_NAME_TMP) --run-command 'cd /home/$(PROJECT_SRC) && sudo make load KERNELDIR=`find /lib/modules/*/build`' 
-	@echo $(call greentext,"Module loaded in the VM")
 	
 	@echo $(call bluetext,"Rename $(BUILD_VM)/$(IMG_NAME_TMP) to $(BUILD_VM)/$(IMG_NAME)")
 	mv $(BUILD_VM)/$(IMG_NAME_TMP) $(BUILD_VM)/$(IMG_NAME)
@@ -110,7 +106,7 @@ endif
 $(BUILD_VM)/$(IMG_SSH): $(BUILD_VM)/$(IMG_NAME)
 	@echo $(call bluetext,"Creating SSH image...")
 	cat ~/.ssh/id_rsa 2>&1 > /dev/null || ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''
-	cp vm/ssh.config.template $(BUILD_VM)/ssh.config
+	cp vm/templates/ssh.config.template $(BUILD_VM)/ssh.config
 	sed -i 's/USERNAME/$(shell whoami)/g' $(BUILD_VM)/ssh.config
 	sed -i 's#PUBKEY#$(shell cat ~/.ssh/id_rsa.pub)#g' $(BUILD_VM)/ssh.config
 
