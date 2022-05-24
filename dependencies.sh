@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if [ -x "$(command -v apt)" ]; then
     sudo apt update
     sudo apt install -y \
@@ -8,16 +7,7 @@ if [ -x "$(command -v apt)" ]; then
         qemu-system-x86 \
         libguestfs-tools \
         cloud-image-utils \
-        git \
-        gcc \
-        build-essential \
-        ncurses-dev \
-        xz-utils \
-        libssl-dev \
-        libncurses-dev \
-        flex \
-        libelf-dev \
-        bison
+        gcc
 elif [ -x "$(command -v yum)" ]; then
     sudo pacman -Syu
     sudo pacman -S --noconfirm \
@@ -26,14 +16,7 @@ elif [ -x "$(command -v yum)" ]; then
         qemu-system-x86 \
         libguestfs \
         cloud-image-utils \
-        git \
-        gcc \
-        base-devel \
-        openssl \
-        ncurses \
-        flex \
-        libelf \
-        bison
+        gcc
 else
     echo "Unsupported OS"
     exit 1

@@ -2,29 +2,36 @@
 ### MODULE MAKEFILE ###
 #######################
 
+greentext = "\e[32m$(1)\e[0m"
+yellowtext = "\e[33m$(1)\e[0m"
+redtext = "\e[31m$(1)\e[0m"
+bluetext = "\e[34m$(1)\e[0m"
+
+BUILD = ../build
+BUILD_MODULE = $(BUILD)/module
+MODULE_NAME = cryptolib
+MODULE_FILENAME = $(MODULE_NAME).ko
+
 ifeq ($(KERNELRELEASE),)
-
-PROJECT_DIR ?= ..
-
-include $(PROJECT_DIR)/global.mk
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 COMPILATION_FILES = *.o *~ core .depend .*.cmd *.ko *.mod.c *.tmp_versions *.mod *.order *.symvers
 
 PWD := $(shell pwd)
 
-$(BUILD_MODULE):
-	mkdir -p $(BUILD_MODULE)
-
-$(BUILD_MODULE)/$(MODULE_FILENAME): modules
-
 modules: $(BUILD_MODULE)
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) $@
-	mv $(PWD)/$(COMPILATION_FILES) $(PWD)/$(BUILD_MODULE) 2>/dev/null; true
+	mv $(PWD)/$(COMPILATION_FILES) $(BUILD_MODULE) 2>/dev/null; true
 
 modules_install: $(BUILD_MODULE)
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) $@
-	mv $(PWD)/$(COMPILATION_FILES) $(PWD)/$(BUILD_MODULE) 2>/dev/null; true
+	mv $(PWD)/$(COMPILATION_FILES) $(BUILD_MODULE) 2>/dev/null; true
+
+$(BUILD_MODULE):
+	mkdir -p $(BUILD_MODULE)
+
+$(BUILD_MODULE)/$(MODULE_FILENAME): $(BUILD_MODULE)
+	$(MAKE) modules
 
 load: $(BUILD_MODULE)/$(MODULE_FILENAME)
 	@echo $(call yellowtext,"Do you REALLY want to load the module [$(MODULE_NAME)] on your system?")
@@ -52,9 +59,10 @@ clean:
 .PHONY: modules modules_install clean
 
 else
-
 SRC = $(shell find $(PWD)/src -name '*.c')
 OBJS = $(SRC:.c=.o)
+
 obj-m := $(MODULE_NAME).o
 $(MODULE_NAME)-objs = $(OBJS)
+
 endif

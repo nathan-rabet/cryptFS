@@ -9,7 +9,7 @@ yellowtext = "\e[33m$(1)\e[0m"
 redtext = "\e[31m$(1)\e[0m"
 bluetext = "\e[34m$(1)\e[0m"
 
-PROJECT_DIR ?= $(shell false)
+PROJECT_DIR ?= $(shell false) # MUST BE SET BEFORE INCLUDING THIS FILE
 
 BUILD = $(PROJECT_DIR)/build
 
@@ -26,7 +26,7 @@ BUILD_KERNEL = $(BUILD)/kernel
     KERNEL_VERSION = linux-5.13.1
     KERNEL_BUILD_DIRNAME = $(KERNEL_VERSION)
     KERNEL_ARCHIVE_NAME = $(KERNEL_VERSION).tar.xz
-    KERNEL_COMPILED = $(KERNEL_ARCHIVE_NAME)/arch/x86/boot/bzImage
+    KERNEL_COMPILED = $(KERNEL_BUILD_DIRNAME)/arch/x86/boot/bzImage
     KERNEL_URL = https://cdn.kernel.org/pub/linux/kernel/v5.x/$(KERNEL_ARCHIVE_NAME)
     KERNEL_BUILD_MODULE = $(BUILD_KERNEL)/module
     NEW_KERNELDIR = $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME)/build 

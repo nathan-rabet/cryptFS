@@ -2,7 +2,7 @@
 ### VIRTUAL MACHINE MAKEFILE ###
 ################################
 
-PROJECT_DIR ?= $(shell pwd)/..
+PROJECT_DIR ?= ..
 
 include $(PROJECT_DIR)/global.mk
 
@@ -26,8 +26,13 @@ vm: $(BUILD_VM)/$(IMG_NAME) $(BUILD_VM)/$(IMG_SSH) $(BUILD_KERNEL)/$(KERNEL_COMP
 	-kernel $(BUILD_KERNEL)/$(KERNEL_COMPILED) \
 	-pidfile vm.pid | tee logs/$(shell date +%Y-%m-%d_%H-%M-%S)_vm.log
 
+# Compile kernel
+$(BUILD_KERNEL)/$(KERNEL_COMPILED):
+	$(MAKE) -C $(SRC_KERNEL) kernel
+
 # Ubuntu image downloading/restoring
 $(BUILD_VM)/$(IMG_NAME_TMP):
+	@echo === $(BUILD_VM)/$(IMG_NAME_TMP) ===
 ifeq ($(shell test -e $(BUILD_VM)/$(IMG_NAME_BACKUP);echo $$?),0)
 	cp $(BUILD_VM)/$(IMG_NAME_BACKUP) $(BUILD_VM)/$(IMG_NAME_TMP)
 else
@@ -59,7 +64,7 @@ $(BUILD_VM)/$(IMG_NAME): $(BUILD_VM)/$(IMG_NAME_TMP) $(BUILD_KERNEL)
 $(BUILD_VM)/$(IMG_SSH): $(BUILD_VM)/$(IMG_NAME)
 	@echo $(call bluetext,"Creating SSH image...")
 	cat ~/.ssh/id_rsa 2>&1 > /dev/null || ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''
-	cp vm/templates/ssh.config.template $(BUILD_VM)/ssh.config
+	cp templates/ssh.config.template $(BUILD_VM)/ssh.config
 	sed -i 's/USERNAME/$(shell whoami)/g' $(BUILD_VM)/ssh.config
 	sed -i 's#PUBKEY#$(shell cat ~/.ssh/id_rsa.pub)#g' $(BUILD_VM)/ssh.config
 

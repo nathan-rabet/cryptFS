@@ -6,6 +6,8 @@ PROJECT_DIR ?= ..
 
 include $(PROJECT_DIR)/global.mk
 
+kernel: $(BUILD_KERNEL)/$(KERNEL_COMPILED)
+	
 $(BUILD_KERNEL)/$(KERNEL_COMPILED):
 	mkdir -p $(BUILD_KERNEL)
 ifeq ($(shell test -e $(BUILD_KERNEL)/$(KERNEL_ARCHIVE_NAME);echo $$?),0)
@@ -28,8 +30,6 @@ endif
 	cd $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME) && make -j$(shell nproc)
 
 	@echo $(call greentext,"Kernel built successfully")
-
-kernel: $(BUILD_KERNEL)/$(KERNEL_COMPILED)
 
 module: $(BUILD_KERNEL)/$(KERNEL_COMPILED)
 	@echo $(call bluetext,"Compiling module for $(KERNEL_VERSION)...")
