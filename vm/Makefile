@@ -13,7 +13,7 @@ vm: $(BUILD_VM)/$(IMG_NAME) $(BUILD_VM)/$(IMG_SSH) $(BUILD_KERNEL)/$(KERNEL_COMP
 	@echo $(call bluetext,"You will be able to connect to the VM using SSH with the following command:")
 	@echo $(call bluetext,"$$	ssh $(shell whoami)@localhost -p 2222")
 	@sleep 5
-	mkdir -p logs
+	mkdir -p $(BUILD_VM)/logs
 
 	qemu-system-x86_64 \
 	-enable-kvm \
@@ -24,7 +24,7 @@ vm: $(BUILD_VM)/$(IMG_NAME) $(BUILD_VM)/$(IMG_SSH) $(BUILD_KERNEL)/$(KERNEL_COMP
 	-hdb $(BUILD_VM)/$(IMG_SSH) \
 	-nic user,hostfwd=tcp::2222-:22 \
 	-kernel $(BUILD_KERNEL)/$(KERNEL_COMPILED) \
-	-pidfile vm.pid | tee logs/$(shell date +%Y-%m-%d_%H-%M-%S)_vm.log
+	-pidfile $(BUILD_VM)/logs/vm.pid  | tee $(BUILD_VM)/logs/$(shell date +%Y-%m-%d_%H-%M-%S)_vm.log
 
 # Compile kernel
 $(BUILD_KERNEL)/$(KERNEL_COMPILED):
@@ -32,7 +32,6 @@ $(BUILD_KERNEL)/$(KERNEL_COMPILED):
 
 # Ubuntu image downloading/restoring
 $(BUILD_VM)/$(IMG_NAME_TMP):
-	@echo === $(BUILD_VM)/$(IMG_NAME_TMP) ===
 ifeq ($(shell test -e $(BUILD_VM)/$(IMG_NAME_BACKUP);echo $$?),0)
 	cp $(BUILD_VM)/$(IMG_NAME_BACKUP) $(BUILD_VM)/$(IMG_NAME_TMP)
 else
@@ -43,6 +42,17 @@ else
 	@echo $(call bluetext,"Backuping $(BUILD_VM)/$(IMG_NAME_TMP)...")
 	cp $(BUILD_VM)/$(IMG_NAME_TMP) $(BUILD_VM)/$(IMG_NAME_BACKUP)
 endif
+
+# SSH image creation
+$(BUILD_VM)/$(IMG_SSH):
+	@echo $(call bluetext,"Creating SSH image...")
+	cat ~/.ssh/id_rsa 2>&1 > /dev/null || ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''
+	cp templates/ssh.config.template $(BUILD_VM)/ssh.config
+	sed -i 's/USERNAME/$(shell whoami)/g' $(BUILD_VM)/ssh.config
+	sed -i 's#PUBKEY#$(shell cat ~/.ssh/id_rsa.pub)#g' $(BUILD_VM)/ssh.config
+
+	cloud-localds --disk-format qcow2 $(BUILD_VM)/ssh.img $(BUILD_VM)/ssh.config
+	@echo $(call greentext,"SSH image created")
 
 # Crafting the VM
 $(BUILD_VM)/$(IMG_NAME): $(BUILD_VM)/$(IMG_NAME_TMP) $(BUILD_KERNEL)
@@ -60,20 +70,10 @@ $(BUILD_VM)/$(IMG_NAME): $(BUILD_VM)/$(IMG_NAME_TMP) $(BUILD_KERNEL)
 	@echo $(call bluetext,"Renaming $(BUILD_VM)/$(IMG_NAME_TMP) to $(BUILD_VM)/$(IMG_NAME)")
 	mv $(BUILD_VM)/$(IMG_NAME_TMP) $(BUILD_VM)/$(IMG_NAME)
 
-# SSH image creation
-$(BUILD_VM)/$(IMG_SSH): $(BUILD_VM)/$(IMG_NAME)
-	@echo $(call bluetext,"Creating SSH image...")
-	cat ~/.ssh/id_rsa 2>&1 > /dev/null || ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''
-	cp templates/ssh.config.template $(BUILD_VM)/ssh.config
-	sed -i 's/USERNAME/$(shell whoami)/g' $(BUILD_VM)/ssh.config
-	sed -i 's#PUBKEY#$(shell cat ~/.ssh/id_rsa.pub)#g' $(BUILD_VM)/ssh.config
-
-	cloud-localds --disk-format qcow2 $(BUILD_VM)/ssh.img $(BUILD_VM)/ssh.config
-	@echo $(call greentext,"SSH image created")
 
 clean-vm:
 	@echo $(call bluetext,"Cleaning VM...")
-	rm -rf $(shell find $(BUILD_VM) ! -name $(IMG_NAME_BACKUP))
+	rm -rf $(shell find $(BUILD_VM) ! -name $(IMG_NAME_BACKUP) ! -wholename $(BUILD_VM))
 	@echo $(call greentext,"VM cleaned")
 
 clean-all:

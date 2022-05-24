@@ -36,3 +36,17 @@ module: $(BUILD_KERNEL)/$(KERNEL_COMPILED)
 	cd $(MODULE) && make modules BUILD=$(BUILD_KERNEL)/module KERNELDIR=$(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME)
 	@echo $(call greentext,"Module compiled successfully")
 
+clean-module:
+	@echo $(call bluetext,"Cleaning module for $(KERNEL_VERSION)...")
+	rm $(KERNEL_BUILD_MODULE)
+	@echo $(call greentext,"Module cleaned successfully")
+
+clean-kernel:
+	@echo $(call bluetext,"Cleaning kernel for $(KERNEL_VERSION)...")
+	rm $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME)
+	@echo $(call greentext,"Kernel cleaned successfully")
+
+clean-all:
+	@echo $(call bluetext,"Cleaning all for $(KERNEL_VERSION)...")
+	rm $(BUILD_KERNEL)
+	@echo $(call greentext,"All cleaned successfully")
