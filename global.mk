@@ -19,7 +19,8 @@ SRC_VM = $(PROJECT_DIR)/vm
 SRC_SYS = $(SRC_VM)/system
 BUILD_SYS = $(BUILD)/system
     SYSTEM_IMAGE_DIR = image
-    SYSTEM_IMAGE = stretch.img
+    SYSTEM_VERSION = stretch
+    SYSTEM_IMAGE = $(SYSTEM_VERSION).img
 
     SRC_KERNEL = $(SRC_SYS)/kernel
     BUILD_KERNEL = $(BUILD_SYS)/kernel

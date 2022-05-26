@@ -11,7 +11,7 @@ vm: $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE) $(BUILD_KERNEL)/$(KERNEL_CO
 	@echo $(call greentext,"Running VM")
 	@echo $(call greentext,"This will take a some minutes to boot...")
 	@echo $(call bluetext,"You will be able to connect to the VM using SSH with the following command:")
-	@echo $(call bluetext,"$$	ssh $(shell whoami)@localhost -p 2222")
+	@echo $(call bluetext,"$$	ssh -i $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_VERSION).id_rsa -p 2222 -o "StrictHostKeyChecking no" root@localhost")
 	@sleep 5
 	mkdir -p $(BUILD_VM)/logs
 
