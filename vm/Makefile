@@ -33,14 +33,9 @@ $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE):
 $(BUILD_KERNEL)/$(KERNEL_COMPILED):
 	$(MAKE) -C $(SRC_KERNEL) kernel
 
-clean-vm:
+clean:
 	@echo $(call bluetext,"Cleaning VM...")
-	rm -rf $(shell find $(BUILD_VM) ! -name $(IMG_NAME_BACKUP) ! -wholename $(BUILD_VM))
-	@echo $(call greentext,"VM cleaned")
-
-clean-all:
-	@echo $(call bluetext,"Cleaning all...")
 	rm -rf $(BUILD_VM)
-	@echo $(call greentext,"All cleaned")
+	@echo $(call greentext,"VM cleaned")
 
 .PHONY: vm clean-vm clean-all

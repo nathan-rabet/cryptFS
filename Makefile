@@ -29,10 +29,7 @@ clean-all:
 	rm -rf $(BUILD) $(MODULE_FILENAME)
 
 clean-vm:
-	$(MAKE) -C $(SRC_VM) clean-vm
-
-clean-vm-all:
-	$(MAKE) -C $(SRC_VM) clean-all
+	$(MAKE) -C $(SRC_VM) clean
 
 clean-module:
 	rm -rf $(MODULE_FILENAME)
