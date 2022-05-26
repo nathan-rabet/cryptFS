@@ -55,7 +55,7 @@ clean-kernel:
 	@echo $(call greentext,"Kernel cleaned successfully")
 
 # ! FIXME : SUDO
-clean-system:
+clean-image:
 	@echo $(call bluetext,"Cleaning system...")
 	sudo rm -r $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)
 	@echo $(call greentext,"System cleaned successfully")

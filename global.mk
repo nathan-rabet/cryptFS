@@ -21,15 +21,15 @@ BUILD_SYS = $(BUILD)/system
     SYSTEM_IMAGE_DIR = image
     SYSTEM_IMAGE = stretch.img
 
-SRC_KERNEL = $(SRC_SYS)/kernel
-BUILD_KERNEL = $(BUILD_SYS)/kernel
-    KERNEL_VERSION = linux-5.13.1
-    KERNEL_BUILD_DIRNAME = $(KERNEL_VERSION)
-    KERNEL_ARCHIVE_NAME = $(KERNEL_VERSION).tar.xz
-    KERNEL_COMPILED = $(KERNEL_BUILD_DIRNAME)/arch/x86/boot/bzImage
-    KERNEL_URL = https://cdn.kernel.org/pub/linux/kernel/v5.x/$(KERNEL_ARCHIVE_NAME)
-    KERNEL_BUILD_MODULE = $(BUILD_KERNEL)/module
-    NEW_KERNELDIR = $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME)/build 
+    SRC_KERNEL = $(SRC_SYS)/kernel
+    BUILD_KERNEL = $(BUILD_SYS)/kernel
+        KERNEL_VERSION = linux-5.13.1
+        KERNEL_BUILD_DIRNAME = $(KERNEL_VERSION)
+        KERNEL_ARCHIVE_NAME = $(KERNEL_VERSION).tar.xz
+        KERNEL_COMPILED = $(KERNEL_BUILD_DIRNAME)/arch/x86/boot/bzImage
+        KERNEL_URL = https://cdn.kernel.org/pub/linux/kernel/v5.x/$(KERNEL_ARCHIVE_NAME)
+        KERNEL_BUILD_MODULE = $(BUILD_KERNEL)/module
+        NEW_KERNELDIR = $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME)/build 
 
 SRC_MODULE = $(PROJECT_DIR)/module
 BUILD_MODULE = $(BUILD)/module
