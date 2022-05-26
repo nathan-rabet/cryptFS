@@ -13,16 +13,16 @@ PROJECT_DIR ?= $(shell false) # MUST BE SET BEFORE INCLUDING THIS FILE
 
 BUILD = $(PROJECT_DIR)/build
 
-SRC_VM = $(PROJECT_DIR)/vm
 BUILD_VM = $(BUILD)/vm
-    IMG_URL = https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
-    IMG_NAME = ubuntu_dev.img
-    IMG_NAME_TMP = $(IMG_NAME).tmp
-    IMG_NAME_BACKUP = $(IMG_NAME).bak
-    IMG_SSH = ssh.img
+SRC_VM = $(PROJECT_DIR)/vm
 
-SRC_KERNEL = $(PROJECT_DIR)/kernel
-BUILD_KERNEL = $(BUILD)/kernel
+SRC_SYS = $(SRC_VM)/system
+BUILD_SYS = $(BUILD)/system
+    SYSTEM_IMAGE_DIR = image
+    SYSTEM_IMAGE = stretch.img
+
+SRC_KERNEL = $(SRC_SYS)/kernel
+BUILD_KERNEL = $(BUILD_SYS)/kernel
     KERNEL_VERSION = linux-5.13.1
     KERNEL_BUILD_DIRNAME = $(KERNEL_VERSION)
     KERNEL_ARCHIVE_NAME = $(KERNEL_VERSION).tar.xz

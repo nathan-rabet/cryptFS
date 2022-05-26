@@ -7,7 +7,9 @@ if [ -x "$(command -v apt)" ]; then
         qemu-system-x86 \
         libguestfs-tools \
         cloud-image-utils \
-        gcc
+        debootstrap \
+        gcc \
+        flex bison libncurses-dev libelf-dev libssl-dev
 elif [ -x "$(command -v yum)" ]; then
     sudo pacman -Syu
     sudo pacman -S --noconfirm \
@@ -16,7 +18,9 @@ elif [ -x "$(command -v yum)" ]; then
         qemu-system-x86 \
         libguestfs \
         cloud-image-utils \
-        gcc
+        debootstrap \
+        gcc \
+        flex bison libncurses-dev libelf-dev libssl-dev
 else
     echo "Unsupported OS"
     exit 1

@@ -1,20 +1,28 @@
 ###################################
-### KERNEL COMPILATION MAKEFILE ###
+### SYSTEM COMPILATION MAKEFILE ###
 ###################################
 
-PROJECT_DIR ?= ..
+PROJECT_DIR ?= ../..
 
 include $(PROJECT_DIR)/global.mk
 
+CREATE_IMG_SCRIPT = create-image.sh
+
+image: $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE)
+
 kernel: $(BUILD_KERNEL)/$(KERNEL_COMPILED)
 	
+$(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE):
+	mkdir -p $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)
+	cp $(CREATE_IMG_SCRIPT) $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)
+	cd $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR) && bash $(CREATE_IMG_SCRIPT)
+
 $(BUILD_KERNEL)/$(KERNEL_COMPILED):
 	mkdir -p $(BUILD_KERNEL)
-ifeq ($(shell test -e $(BUILD_KERNEL)/$(KERNEL_ARCHIVE_NAME);echo $$?),0)
-	tar -xf $(BUILD_KERNEL)/$(KERNEL_VERSION).tar.xz -C $(BUILD_KERNEL)
-else
+ifeq ($(shell test -e $(BUILD_KERNEL)/$(KERNEL_ARCHIVE_NAME);echo $$?),1)
 	wget $(KERNEL_URL) -O $(BUILD_KERNEL)/$(KERNEL_VERSION).tar.xz
 endif
+	tar -xf $(BUILD_KERNEL)/$(KERNEL_VERSION).tar.xz -C $(BUILD_KERNEL)
 	@echo $(call bluetext,"Building kernel configuration...")
 	cd $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME) && make defconfig
 	cd $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME) && make kvm_guest.config
@@ -38,15 +46,21 @@ module: $(BUILD_KERNEL)/$(KERNEL_COMPILED)
 
 clean-module:
 	@echo $(call bluetext,"Cleaning module for $(KERNEL_VERSION)...")
-	rm $(KERNEL_BUILD_MODULE)
+	rm -r $(KERNEL_BUILD_MODULE)
 	@echo $(call greentext,"Module cleaned successfully")
 
 clean-kernel:
 	@echo $(call bluetext,"Cleaning kernel for $(KERNEL_VERSION)...")
-	rm $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME)
+	rm -r $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME)
 	@echo $(call greentext,"Kernel cleaned successfully")
+
+# ! FIXME : SUDO
+clean-system:
+	@echo $(call bluetext,"Cleaning system...")
+	sudo rm -r $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)
+	@echo $(call greentext,"System cleaned successfully")
 
 clean-all:
 	@echo $(call bluetext,"Cleaning all for $(KERNEL_VERSION)...")
-	rm $(BUILD_KERNEL)
+	rm -r $(BUILD_KERNEL) $(BUILD_SYS)
 	@echo $(call greentext,"All cleaned successfully")
