@@ -20,11 +20,11 @@ COMPILATION_FILES = *.o *~ core .depend .*.cmd *.ko *.mod.c *.tmp_versions *.mod
 PWD := $(shell pwd)
 
 modules: $(BUILD_MODULE)
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) $@
+	sudo $(MAKE) -C $(KERNELDIR) M=$(PWD) $@
 	mv $(PWD)/$(COMPILATION_FILES) $(BUILD_MODULE) 2>/dev/null; true
 
 modules_install: $(BUILD_MODULE)
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) $@
+	sudo $(MAKE) -C $(KERNELDIR) M=$(PWD) $@
 	mv $(PWD)/$(COMPILATION_FILES) $(BUILD_MODULE) 2>/dev/null; true
 
 $(BUILD_MODULE):
