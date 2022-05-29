@@ -43,7 +43,7 @@ endif
 
 	@echo $(call greentext,"Kernel built successfully")
 
-module: $(BUILD_KERNEL)/$(KERNEL_BUILD_COMPILED)
+module:
 	@echo $(call bluetext,"Compiling module for $(KERNEL_VERSION)...")
 	make -C $(SRC_MODULE) modules BUILD=$(shell pwd)/$(BUILD_KERNEL) KERNELDIR=$(shell pwd)/$(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME)
 	@echo $(call greentext,"Module compiled successfully")

@@ -15,6 +15,7 @@ vm: $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE) $(KERNEL_BUILD_MODULE)/$(MO
 	@sleep 5
 	mkdir -p $(BUILD_VM)/logs
 	sudo virt-customize -a $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE) --copy-in $(KERNEL_BUILD_MODULE)/$(MODULE_FILENAME):/root
+	sudo virt-customize -a $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE) --copy $(DROPZONE):/root/$(DROPZONE)
 
 	qemu-system-x86_64 \
 	-enable-kvm \

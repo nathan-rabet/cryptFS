@@ -73,3 +73,5 @@ dkms.conf
 # Build files
 build/*
 logs/*
+
+dropzone/*

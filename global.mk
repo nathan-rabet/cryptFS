@@ -10,6 +10,7 @@ redtext = "\e[31m$(1)\e[0m"
 bluetext = "\e[34m$(1)\e[0m"
 
 PROJECT_DIR ?= $(shell false) # MUST BE SET BEFORE INCLUDING THIS FILE
+DROPZONE = dropzone
 
 BUILD = $(PROJECT_DIR)/build
 
