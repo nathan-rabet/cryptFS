@@ -14,6 +14,7 @@ vm: $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE) $(KERNEL_BUILD_MODULE)/$(MO
 	@echo $(call bluetext,"$$	ssh -i $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_VERSION).id_rsa -p 2222 -o "StrictHostKeyChecking no" root@localhost")
 	@sleep 5
 	mkdir -p $(BUILD_VM)/logs
+	mkdir -p $(PROJECT_DIR)/$(DROPZONE)
 	sudo virt-customize -a $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE) --copy-in $(KERNEL_BUILD_MODULE)/$(MODULE_FILENAME):/root
 	sudo virt-customize -a $(BUILD_SYS)/$(SYSTEM_IMAGE_DIR)/$(SYSTEM_IMAGE) --copy-in $(PROJECT_DIR)/$(DROPZONE):/root
 
