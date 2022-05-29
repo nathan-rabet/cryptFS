@@ -11,13 +11,13 @@ BUILD = ../build
 BUILD_MODULE = $(BUILD)/module
 MODULE_NAME = cryptolib
 MODULE_FILENAME = $(MODULE_NAME).ko
+PWD := $(shell pwd)
 
 ifeq ($(KERNELRELEASE),)
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 COMPILATION_FILES = *.o *~ core .depend .*.cmd *.ko *.mod.c *.tmp_versions *.mod *.order *.symvers
 
-PWD := $(shell pwd)
 
 modules: $(BUILD_MODULE)
 	sudo $(MAKE) -C $(KERNELDIR) M=$(PWD) $@
