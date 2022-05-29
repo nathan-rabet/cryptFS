@@ -31,8 +31,6 @@ BUILD_SYS = $(BUILD)/system
         KERNEL_BUILD_COMPILED = $(KERNEL_BUILD_DIRNAME)/arch/x86/boot/bzImage
         KERNEL_URL = https://cdn.kernel.org/pub/linux/kernel/v5.x/$(KERNEL_ARCHIVE_NAME)
         KERNEL_BUILD_MODULE = $(BUILD_KERNEL)/module
-        KERNEL_BUILD_COMPILED_NAME = $(KERNEL_VERSION)_compiled
-        KERNEL_BUILD_COMPILED_PATH = $(SRC_KERNEL)/x86
         
 
 SRC_MODULE = $(PROJECT_DIR)/module
