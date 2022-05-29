@@ -50,7 +50,7 @@ module:
 
 clean-module:
 	@echo $(call bluetext,"Cleaning module for $(KERNEL_VERSION)...")
-	rm -r $(KERNEL_BUILD_MODULE)
+	sudo rm -r $(KERNEL_BUILD_MODULE)
 	@echo $(call greentext,"Module cleaned successfully")
 
 clean-kernel:

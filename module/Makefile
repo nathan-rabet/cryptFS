@@ -18,7 +18,6 @@ ifeq ($(KERNELRELEASE),)
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 COMPILATION_FILES = *.o *~ core .depend .*.cmd *.ko *.mod.c *.tmp_versions *.mod *.order *.symvers
 
-
 modules: $(BUILD_MODULE)
 	sudo $(MAKE) -C $(KERNELDIR) M=$(PWD) $@
 	mv $(PWD)/$(COMPILATION_FILES) $(BUILD_MODULE) 2>/dev/null; true
@@ -59,7 +58,7 @@ clean:
 .PHONY: modules modules_install clean
 
 else
-SRC = $(shell find $(PWD)/module -name '*.c')
+SRC = 
 OBJS = $(SRC:.c=.o)
 
 obj-m := $(MODULE_NAME).o
