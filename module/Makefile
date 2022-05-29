@@ -59,7 +59,7 @@ clean:
 .PHONY: modules modules_install clean
 
 else
-SRC = $(shell find $(PWD)/src -name '*.c')
+SRC = $(shell find $(PWD)/module -name '*.c')
 OBJS = $(SRC:.c=.o)
 
 obj-m := $(MODULE_NAME).o
