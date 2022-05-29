@@ -1,0 +1,8 @@
+[Unit]
+Description=Load the kernel module at boot time
+
+[Service]
+ExecStart=insmod __SERVICE_PATH__
+
+[Install]
+WantedBy=multi-user.target
