@@ -8,7 +8,7 @@ include $(PROJECT_DIR)/global.mk
 
 module:
 	$(MAKE) -C $(SRC_MODULE) modules
-	cp $(BUILD_KERNEL)/$(KERNEL_COMPILED) ./$(MODULE_FILENAME)
+	cp $(BUILD_KERNEL)/$(KERNEL_BUILD_COMPILED) ./$(MODULE_FILENAME)
 
 dependencies:
 	bash dependencies.sh

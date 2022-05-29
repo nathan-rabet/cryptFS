@@ -27,10 +27,12 @@ BUILD_SYS = $(BUILD)/system
         KERNEL_VERSION = linux-5.13.1
         KERNEL_BUILD_DIRNAME = $(KERNEL_VERSION)
         KERNEL_ARCHIVE_NAME = $(KERNEL_VERSION).tar.xz
-        KERNEL_COMPILED = $(KERNEL_BUILD_DIRNAME)/arch/x86/boot/bzImage
+        KERNEL_BUILD_COMPILED = $(KERNEL_BUILD_DIRNAME)/arch/x86/boot/bzImage
         KERNEL_URL = https://cdn.kernel.org/pub/linux/kernel/v5.x/$(KERNEL_ARCHIVE_NAME)
         KERNEL_BUILD_MODULE = $(BUILD_KERNEL)/module
-        NEW_KERNELDIR = $(BUILD_KERNEL)/$(KERNEL_BUILD_DIRNAME)/build 
+        KERNEL_BUILD_COMPILED_NAME = $(KERNEL_VERSION)_compiled
+        KERNEL_BUILD_COMPILED_PATH = $(SRC_KERNEL)/x86
+        
 
 SRC_MODULE = $(PROJECT_DIR)/module
 BUILD_MODULE = $(BUILD)/module
