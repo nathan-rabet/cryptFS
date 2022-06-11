@@ -23,7 +23,6 @@ BUILD_SYS = $(BUILD)/system
     SYSTEM_VERSION = stretch
     SYSTEM_IMAGE = $(SYSTEM_VERSION).img
 
-    SRC_KERNEL = $(SRC_SYS)/kernel
     BUILD_KERNEL = $(BUILD_SYS)/kernel
         KERNEL_VERSION = linux-5.13.1
         KERNEL_BUILD_DIRNAME = $(KERNEL_VERSION)

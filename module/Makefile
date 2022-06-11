@@ -35,7 +35,7 @@ $(BUILD_MODULE)/$(MODULE_FILENAME):
 load: $(BUILD_MODULE)/$(MODULE_FILENAME)
 	@echo $(call yellowtext,"Do you REALLY want to load the module [$(MODULE_NAME)] on your system?")
 	@echo $(call yellowtext,"It may cause some trouble.")
-	@echo $(call yellowtext,"You have 5 seconds to presse Ctrl+C if you DO NOT want to do this")
+	@echo $(call yellowtext,"You have 5 seconds to press Ctrl+C if you DO NOT want to do this")
 	@sleep 5
 
 	@echo $(call bluetext,"Loading kernel module")
@@ -45,7 +45,7 @@ load: $(BUILD_MODULE)/$(MODULE_FILENAME)
 unload:
 	@echo $(call yellowtext,"Do you REALLY want to unload the module [$(MODULE_NAME)] from your system?")
 	@echo $(call yellowtext,"If you DO NOT want to do this: press Ctrl+C now.")
-	@echo $(call yellowtext,"You have 3 seconds to presse Ctrl+C if you DO NOT want to do this")
+	@echo $(call yellowtext,"You have 3 seconds to press Ctrl+C if you DO NOT want to do this")
 	@sleep 3
 
 	@echo $(call bluetext,"Unloading kernel module")

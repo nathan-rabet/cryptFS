@@ -17,34 +17,35 @@ vm:
 	$(MAKE) -C $(SRC_VM) vm
 
 kernel:
-	$(MAKE) -C $(SRC_KERNEL) kernel
+	$(MAKE) -C $(SRC_SYS) kernel
 
 kernel-module:
-	$(MAKE) -C $(SRC_MODULE) kernel-module
+	$(MAKE) -C $(SRC_SYS) module
 
 image:
 	$(MAKE) -C $(SRC_SYS) image
-
-clean-all:
-	rm -rf $(BUILD) $(MODULE_FILENAME)
-
-clean-vm:
-	$(MAKE) -C $(SRC_VM) clean
 
 clean-module:
 	rm -rf $(MODULE_FILENAME)
 	$(MAKE) -C $(SRC_MODULE) clean
 
+clean-vm:
+	$(MAKE) -C $(SRC_VM) clean
+
 clean-sytem-kernel-module:
 	$(MAKE) -C $(SRC_SYS) clean-module
-
-clean-system-kernel:
-	$(MAKE) -C $(SRC_SYS) clean-kernel
 
 clean-system-image:
 	$(MAKE) -C $(SRC_SYS) clean-image
 
 clean-system-all:
-	$(MAKE) -C $(SRC_KERNEL) clean-all
+	$(MAKE) -C $(SRC_SYS) clean-all
+
+clean-all-yes-i-am-sure:
+	@echo $(call yellowtext,"Do you REALLY want to delete the $(BUILD) directory?")
+	@echo $(call yellowtext,"Press [Enter] to continue or Ctrl+C to abort.")
+	@read ack
+	rm -rf $(BUILD) $(MODULE_FILENAME)
+
 
 .PHONY: module vm kernel kernel-module image dependencies clean-all clean-vm clean-vm-all clean-module clean-sytem-kernel-module clean-system-kernel clean-system-image clean-system-all
