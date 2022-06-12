@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "fs.h": "c",
+        "fs_mount.h": "c",
+        "fs_info.h": "c",
+        "printk.h": "c",
+        "module.h": "c"
+    }
+}

@@ -14,6 +14,8 @@ DROPZONE = dropzone
 
 BUILD = $(PROJECT_DIR)/build
 
+SRC_CODE = $(PROJECT_DIR)/code
+
 BUILD_VM = $(BUILD)/vm
 SRC_VM = $(PROJECT_DIR)/vm
 
@@ -32,7 +34,10 @@ BUILD_SYS = $(BUILD)/system
         KERNEL_BUILD_MODULE = $(BUILD_KERNEL)/module
         
 
-SRC_MODULE = $(PROJECT_DIR)/module
+SRC_MODULE = $(SRC_CODE)/module
 BUILD_MODULE = $(BUILD)/module
     MODULE_NAME = cryptolib
     MODULE_FILENAME = $(MODULE_NAME).ko
+
+SRC_FS = $(SRC_CODE)/fs
+BUILD_FS = $(BUILD)/fs

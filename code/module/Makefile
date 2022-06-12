@@ -7,14 +7,9 @@ yellowtext = "\e[33m$(1)\e[0m"
 redtext = "\e[31m$(1)\e[0m"
 bluetext = "\e[34m$(1)\e[0m"
 
-BUILD = ../build
-BUILD_MODULE = $(BUILD)/module
-MODULE_NAME = cryptolib
-MODULE_FILENAME = $(MODULE_NAME).ko
-PWD := $(shell pwd)
-
 ifeq ($(KERNELRELEASE),)
 
+PWD := $(shell pwd)
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 COMPILATION_FILES = *.o *~ core .depend .*.cmd *.ko *.mod.c *.tmp_versions *.mod *.order *.symvers
 
@@ -58,9 +53,18 @@ clean:
 .PHONY: modules modules_install clean
 
 else
-SRC = 
-OBJS = $(SRC:.c=.o)
+PROJECT_DIR = ../..
+SRC_FS = $(PROJECT_DIR)/code/fs
+SRC_MODULE = $(PROJECT_DIR)/code/module
+BUILD = $(PROJECT_DIR)/build
+BUILD_MODULE = $(BUILD)/module
+MODULE_NAME = cryptolib
+MODULE_FILENAME = $(MODULE_NAME).ko
 
+ccflags-y += -I$(src)/$(PROJECT_DIR)/include
+
+SRC = $(SRC_FS)/mount.c
+OBJS = $(SRC:.c=.o)
 obj-m := $(MODULE_NAME).o
 $(MODULE_NAME)-objs = $(OBJS)
 
