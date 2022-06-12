@@ -1,5 +1,5 @@
-#include "fs_mount.h"
 #include "fs_info.h"
+#include "fs_crypt.h"
 
 #define CRYPTFS_MAGIC 0xDEADC0DE
 #define CRYPTFS_BLOCKSIZE 1024
@@ -34,9 +34,10 @@ static struct super_operations const cryptfs_super_ops = {
 struct dentry *mount_cryptfs(struct file_system_type *fs_type, int flags,
 			     const char *dev_name, void *data)
 {
+	struct dentry *dentry;
 	pr_debug(CRYPT_FS_NAME ": Mounting...\n");
 
-	struct dentry *dentry = mount_nodev(fs_type, flags, data, fs_fill_sb);
+	dentry = mount_nodev(fs_type, flags, data, fs_fill_sb);
 	if (IS_ERR(dentry)) {
 		pr_err(CRYPT_FS_NAME ": cannot mount filesystem\n");
 		return dentry;
@@ -44,6 +45,11 @@ struct dentry *mount_cryptfs(struct file_system_type *fs_type, int flags,
 
 	pr_debug(CRYPT_FS_NAME ": Mounted successfully...\n");
 	return dentry;
+}
+
+void unmount_cryptfs(struct super_block *sb)
+{
+	// TODO unmount
 }
 
 int fs_fill_sb(struct super_block *sb, void *data, int silent)
@@ -68,4 +74,19 @@ int fs_fill_sb(struct super_block *sb, void *data, int silent)
 
 	pr_debug(CRYPT_FS_NAME ": Filled superblock successfully...\n");
 	return 0;
+}
+
+struct inode *cryptfs_alloc_inode(struct super_block *sb)
+{
+	return NULL;
+}
+
+int cryptfs_drop_inode(struct inode *node)
+{
+	return 0;
+}
+
+void cryptfs_put_super(struct super_block *sb)
+{
+
 }

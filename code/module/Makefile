@@ -63,9 +63,12 @@ MODULE_FILENAME = $(MODULE_NAME).ko
 
 ccflags-y += -I$(src)/$(PROJECT_DIR)/include
 
-SRC = $(SRC_FS)/mount.c
+SRC = main.c $(SRC_FS)/mount.c $(SRC_FS)/crypt.c
 OBJS = $(SRC:.c=.o)
 obj-m := $(MODULE_NAME).o
 $(MODULE_NAME)-objs = $(OBJS)
+
+%.o: %.c
+	$(CC) -c $(ccflags-y) $< -o $@
 
 endif

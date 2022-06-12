@@ -1,9 +1,10 @@
 #include <linux/module.h>
 #include "fs_info.h"
+#include "fs_crypt.h"
 
 static __init int fs_load(void)
 {
-	pr_debug(CRYPT_FS_NAME##": Loading...\n");
+	pr_debug(CRYPT_FS_NAME ": Loading...\n");
 
 	int ret = register_filesystem(&fs_type);
 	if (ret != 0) {
