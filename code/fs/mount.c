@@ -1,7 +1,6 @@
 #include "fs_info.h"
 #include "fs_crypt.h"
 
-#define CRYPTFS_MAGIC 0xDEADC0DE
 #define CRYPTFS_BLOCKSIZE 1024
 #define CRYPTFS_BLOCKSIZE_BITS 10
 #define CRYPTFS_TIME_GRAN 1
