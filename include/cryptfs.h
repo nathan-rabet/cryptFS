@@ -5,7 +5,13 @@
 
 #define CRYPTFS_MAGIC 0x63727970746673
 #define CRYPTFS_VERSION 1
+#define CRYPTFS_BLOCK_SIZE 2048
+
 #define ENTRY_NAME_LEN 128
+
+#define NB_ENTRY_PER_FAT 32
+
+#define RSA_KEY_SIZE 2048
 
 enum ENTRY_TYPE {
 	ENTRY_TYPE_FILE = 0,
@@ -15,46 +21,56 @@ enum ENTRY_TYPE {
 	ENTRY_TYPE_UNKNOWN = 4
 };
 
-struct Crypt_FS_Entry {
-	uint8_t entry_type;
-	uint32_t start_block;
-	uint32_t size; // in bytes
-	char name[ENTRY_NAME_LEN];
-	uint32_t uid;
-	uint32_t gid;
-	uint32_t mode;
-	uint32_t atime;
-	uint32_t mtime;
-	uint32_t ctime;
-	uint32_t nb_links;
+enum FAT_BLOCK_TYPE {
+	FAT_BLOCK_INVALID = -2,
+	FAT_BLOCK_END = -1,
+	FAT_BLOCK_FREE = 0,
 };
 
-struct CryptFS_File {
-	uint32_t next_block;
-	uint32_t size; // in bytes, must NOT be greater than the size of a block
-};
+struct Crypt_FS_Entry {
+	uint8_t type; // ENTRY_TYPE
+	uint64_t start_block; // First block of the entry
+	uint64_t size; // in bytes
+	uint32_t uid; // User ID
+	uint32_t gid; // Group ID
+	uint32_t mode; // Permissions
+	uint32_t atime; // Access time
+	uint32_t mtime; // Modification time
+	uint32_t ctime; // Creation time
+	char name[ENTRY_NAME_LEN]; // Name of the entry
+	char free[]; // Reserved for future use
+} __attribute__((packed));
 
 struct CryptFS_Directory {
-	uint32_t magic;
 	uint32_t num_entries;
-	Crypt_FS_Entry entries[];
-};
+	struct Crypt_FS_Entry entries[];
+} __attribute__((packed));
 
-struct Crypt_FS_HashedKey {
-	uint8_t key[8]; // SHA256 hash
-};
+struct Crypt_FS_Key {
+	uint8_t rsa_public
+		[RSA_KEY_SIZE]; // RSA public key used to encrypt the AES key
+	uint8_t aes_key_ciphered
+		[RSA_KEY_SIZE]; // AES key ciphered with RSA public key
+} __attribute__((packed));
 
 struct CryptFS_FAT {
-	// TODO
-}
+	uint64_t next_fat_block; // Next FAT block
+	uint64_t entries[NB_ENTRY_PER_FAT];
+} __attribute__((packed));
+
+#define CRYPT_FS_ROOT_DIR_BLOCK(FAT)                                           \
+	(sizeof(uint64_t) + 2 * sizeof(uint8_t) + sizeof(uint32_t) +           \
+	 64 * sizeof(struct Crypt_FS_Key) + sizeof(struct CryptFS_FAT))
 
 struct CryptFS_Header {
-	uint64_t magic;
-	uint32_t version;
-	uint32_t blocksize;
-	CryptFS_FAT fat;
-	Crypt_FS_HashedKey hashed_keys[64];
-	CryptFS_Directory root_directory;
-}
+	uint8_t boot[5]; // Reserved for future use
+	uint64_t magic; // CRYPTFS_MAGIC
+	uint8_t version; // CRYPTFS_VERSION
+	uint32_t blocksize; // in bytes
+	uint8_t num_keys; // number of keys
+	struct Crypt_FS_Key hashed_key[64]; // Hashed keys of users (max 64 users)
+	struct CryptFS_FAT fat; // File Allocation Table
+	struct CryptFS_Directory root_directory; // Root directory
+} __attribute__((packed));
 
 #endif /* CRYPT_FS_H */

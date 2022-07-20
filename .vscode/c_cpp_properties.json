@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/build/system/kernel/linux-5.13.1/include"
+                "${workspaceFolder}/build/kernel/linux-5.13.1/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
