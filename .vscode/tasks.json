@@ -1,0 +1,17 @@
+{
+    "tasks": [
+        {
+            "label": "make format",
+            "type": "shell",
+            "command": "/usr/bin/make",
+            "args": [
+                "format",
+                "-Bj",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+    ],
+    "version": "2.0.0"
+}

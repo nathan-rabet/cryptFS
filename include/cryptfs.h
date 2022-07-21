@@ -1,17 +1,19 @@
 #ifndef CRYPT_FS_H
 #define CRYPT_FS_H
 
-#include <linux/types.h>
+#include <stdint.h>
 
 #define CRYPTFS_MAGIC 0x63727970746673
 #define CRYPTFS_VERSION 1
 #define CRYPTFS_BLOCK_SIZE 2048
 
-#define ENTRY_NAME_LEN 128
-
 #define NB_ENTRY_PER_FAT 32
 
-#define RSA_KEY_SIZE 2048
+#define NB_ENCRYPTION_KEYS 64
+#define RSA_KEY_SIZE_BITS 2048
+#define RSA_KEY_SIZE_BYTES RSA_KEY_SIZE_BITS / 8
+
+#define ENTRY_NAME_LEN 128
 
 enum ENTRY_TYPE {
 	ENTRY_TYPE_FILE = 0,
@@ -47,10 +49,10 @@ struct CryptFS_Directory {
 } __attribute__((packed));
 
 struct Crypt_FS_Key {
-	uint8_t rsa_public
-		[RSA_KEY_SIZE]; // RSA public key used to encrypt the AES key
+	uint64_t rsa_e; // Public exponent of the RSA keypair
+	uint8_t rsa_n[RSA_KEY_SIZE_BYTES]; // RSA public number 'n' (the modulus)
 	uint8_t aes_key_ciphered
-		[RSA_KEY_SIZE]; // AES key ciphered with RSA public key
+		[RSA_KEY_SIZE_BYTES]; // AES key ciphered with RSA public key
 } __attribute__((packed));
 
 struct CryptFS_FAT {
@@ -67,8 +69,8 @@ struct CryptFS_Header {
 	uint64_t magic; // CRYPTFS_MAGIC
 	uint8_t version; // CRYPTFS_VERSION
 	uint32_t blocksize; // in bytes
-	uint8_t num_keys; // number of keys
-	struct Crypt_FS_Key hashed_key[64]; // Hashed keys of users (max 64 users)
+	struct Crypt_FS_Key keys
+		[NB_ENCRYPTION_KEYS]; // Encrypted keys of users (max NB_ENCRYPTION_KEYS users)
 	struct CryptFS_FAT fat; // File Allocation Table
 	struct CryptFS_Directory root_directory; // Root directory
 } __attribute__((packed));

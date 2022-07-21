@@ -6,6 +6,11 @@
         "printk.h": "c",
         "module.h": "c",
         "format.h": "c",
-        "cryptfs.h": "c"
+        "cryptfs.h": "c",
+        "stdbool.h": "c",
+        "stdlib.h": "c",
+        "rsa.h": "c",
+        "pem.h": "c",
+        "types.h": "c"
     }
 }
