@@ -1,6 +1,7 @@
 #ifndef CRYPT_FS_H
 #define CRYPT_FS_H
 
+#include <openssl/sha.h>
 #include <stdint.h>
 
 #define CRYPTFS_MAGIC 0x63727970746673
@@ -11,7 +12,7 @@
 
 #define NB_ENCRYPTION_KEYS 64
 #define RSA_KEY_SIZE_BITS 2048
-#define RSA_KEY_SIZE_BYTES RSA_KEY_SIZE_BITS / 8
+#define RSA_KEY_SIZE_BYTES (RSA_KEY_SIZE_BITS / 8)
 
 #define ENTRY_NAME_LEN 128
 
@@ -51,8 +52,10 @@ struct CryptFS_Directory {
 struct Crypt_FS_Key {
 	uint64_t rsa_e; // Public exponent of the RSA keypair
 	uint8_t rsa_n[RSA_KEY_SIZE_BYTES]; // RSA public number 'n' (the modulus)
-	uint8_t aes_key_ciphered
-		[RSA_KEY_SIZE_BYTES]; // AES key ciphered with RSA public key
+    uint8_t private_key_hash[SHA384_DIGEST_LENGTH]; // Hash of the private key
+                                                    // (SHA384)
+    uint8_t aes_key_ciphered[RSA_KEY_SIZE_BYTES]; // AES key ciphered with RSA
+                                                  // public key
 } __attribute__((packed));
 
 struct CryptFS_FAT {

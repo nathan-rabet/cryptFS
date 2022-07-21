@@ -5,12 +5,12 @@
 
 /**
  * @brief Check if the given file is a cryptfs file system.
- * 
- * @param path Path to the file to check.
+ *
+ * @param file_path Path to the file to check.
  * @return true if the file is a cryptfs file system.
  * @return false if the file is not a cryptfs file system.
  */
-bool is_already_formatted(const char *path);
+bool is_already_formatted(const char *file_path);
 
 /**
  * @brief Format the given file to a cryptfs file system.

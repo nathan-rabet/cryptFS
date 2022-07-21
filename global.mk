@@ -11,7 +11,8 @@ bluetext = "\e[34m$(1)\e[0m"
 
 PROJECT_DIR ?= $(shell false) # MUST BE SET BEFORE INCLUDING THIS FILE
 
-BUILD = $(PROJECT_DIR)/build
+BUILD_DIR = $(PROJECT_DIR)/build
 
-SRC_CODE = $(PROJECT_DIR)/code
-FUSE_CODE = $(SRC_CODE)/fuse
+SRC_CODE_DIR = $(PROJECT_DIR)/code
+SRC_CORE_DIR = $(SRC_CODE_DIR)/core
+

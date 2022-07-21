@@ -1,25 +1,13 @@
 #include "format.h"
 
-#include <assert.h>
-#include <errno.h>
-#include <openssl/pem.h>
-#include <openssl/rand.h>
 #include <openssl/rsa.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 #include "cryptfs.h"
+#include "errors.h"
 
-#define STR(x) #x
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define RSA_EXPONENT 3
-
-bool is_already_formatted(const char *path)
+bool is_already_formatted(const char *file_path)
 {
-    FILE *file = fopen(path, "r");
+    FILE *file = fopen(file_path, "r");
     if (file == NULL)
         return false;
 
@@ -76,113 +64,22 @@ void format_fs(const char *path)
     header.fat.entries[0] =
         FAT_BLOCK_END; // Root directory is the first entry of the FAT
 
-    // Generate the AES key
-    printf("Generating the AES key (for the filesystem encryption)...\n");
-    unsigned char aes_key[RSA_KEY_SIZE_BYTES];
-    if (RAND_bytes(aes_key, RSA_KEY_SIZE_BYTES) != 1)
-    {
-        perror("Impossible to generate the AES key");
-        exit(EXIT_FAILURE);
-    }
-
-    // Generating a RSA keypair for the encryption
-    printf("Generating a RSA keypair (for the AES key encryption)...\n");
-    RSA *keypair = RSA_new();
-    BIGNUM *exponent = BN_new();
-    if (!keypair || !exponent || !BN_set_word(exponent, RSA_EXPONENT))
-    {
-        perror("Impossible to generate the RSA keypair");
-        exit(EXIT_FAILURE);
-    }
-    if (RSA_generate_key_ex(keypair, RSA_KEY_SIZE_BITS, exponent, NULL) != 1)
-    {
-        perror("Impossible to generate the RSA keypair");
-        exit(EXIT_FAILURE);
-    }
+    // Generate AES + RSA keys
+    unsigned char aes_key[RSA_KEY_SIZE_BYTES] = { 0 };
+    RSA *keypair = NULL;
+    generate_keys(aes_key, keypair);
 
     // Store the RSA modulus and the RSA public exponent in the header
-    const BIGNUM *modulus = RSA_get0_n(keypair);
-
-    if (!modulus || !BN_bn2bin(RSA_get0_n(keypair), header.keys[0].rsa_n))
-    {
-        perror("Impossible to store the RSA modulus");
-        exit(EXIT_FAILURE);
-    }
-    header.keys[0].rsa_e = RSA_EXPONENT;
-
-    // Store the encrypted AES key in the header
-    printf("Encrypting the AES key with the RSA keypair...\n");
-    int encrypted_aes_key_size = RSA_public_encrypt(
-        RSA_KEY_SIZE_BYTES, aes_key, header.keys[0].aes_key_ciphered, keypair,
-        RSA_NO_PADDING);
-    if (encrypted_aes_key_size == -1)
-    {
-        perror("Impossible to encrypt the AES key");
-        exit(EXIT_FAILURE);
-    }
-
-    assert(encrypted_aes_key_size == RSA_KEY_SIZE_BYTES);
+    store_keys_in_headers(&header, keypair, aes_key);
 
     // Get user directory path
     char *user_dir_path = getenv("HOME");
-    if (user_dir_path == NULL)
+    if (!user_dir_path)
     {
         perror("Impossible to get the user directory path");
         exit(EXIT_FAILURE);
     }
-
-    // Create the paths:
-    // - user_dir_path + "/.cryptfs"
-    // - user_dir_path + "/.cryptfs/public.pem"
-    // - user_dir_path + "/.cryptfs/private.pem"
-    char *cryptfs_path =
-        malloc(strlen(user_dir_path) + strlen("/.cryptfs") + 1);
-    strcpy(cryptfs_path, user_dir_path);
-    strcat(cryptfs_path, "/.cryptfs");
-
-    char *public_pem_path =
-        malloc(strlen(user_dir_path) + strlen("/.cryptfs/public.pem") + 1);
-    strcpy(public_pem_path, user_dir_path);
-    strcat(public_pem_path, "/.cryptfs/public.pem");
-
-    char *private_pem_path =
-        malloc(strlen(user_dir_path) + strlen("/.cryptfs/private.pem") + 1);
-    strcpy(private_pem_path, user_dir_path);
-    strcat(private_pem_path, "/.cryptfs/private.pem");
-
-    // Create the directories
-    printf("Creating the directories...\n");
-    if (mkdir(cryptfs_path, 0755) != 0 && errno != EEXIST)
-    {
-        perror("Impossible to create the directories");
-        exit(EXIT_FAILURE);
-    }
-
-    // Store the RSA private in ~/.cryptfs/private.pem
-    printf("Storing the RSA private key in ~/.cryptfs/private.pem...\n");
-    FILE *private_key = fopen(private_pem_path, "w+");
-    if (private_key == NULL)
-    {
-        perror("Impossible to open the private key file");
-        exit(EXIT_FAILURE);
-    }
-    if (PEM_write_RSAPrivateKey(private_key, keypair, NULL, NULL, 0, NULL, NULL)
-            != 1
-        || fclose(private_key) != 0)
-        exit(EXIT_FAILURE);
-
-    // Store the RSA public in ~/.cryptfs/public.pem
-    printf("Storing the RSA public key in ~/.cryptfs/public.pem...\n");
-    FILE *public_key = fopen(public_pem_path, "w+");
-    if (public_key == NULL)
-    {
-        perror("Impossible to open the public key file");
-        exit(EXIT_FAILURE);
-    }
-
-    if (PEM_write_RSA_PUBKEY(public_key, keypair) != 1
-        || fclose(public_key) != 0)
-        exit(EXIT_FAILURE);
+    write_rsa_keys_on_disk(keypair, user_dir_path);
 
     // Write the header
     if (fwrite(&header, sizeof(struct CryptFS_Header), 1, file) != 1)
@@ -190,11 +87,7 @@ void format_fs(const char *path)
         perror("Impossible to write the header");
         exit(EXIT_FAILURE);
     }
-    free(cryptfs_path);
-    free(public_pem_path);
-    free(private_pem_path);
     RSA_free(keypair);
-    BN_free(exponent);
     fclose(file);
 }
 

@@ -1,16 +1,11 @@
 {
     "files.associations": {
-        "fs.h": "c",
-        "fs_mount.h": "c",
-        "fs_info.h": "c",
-        "printk.h": "c",
-        "module.h": "c",
-        "format.h": "c",
         "cryptfs.h": "c",
-        "stdbool.h": "c",
-        "stdlib.h": "c",
+        "rand.h": "c",
         "rsa.h": "c",
-        "pem.h": "c",
-        "types.h": "c"
+        "hash.h": "c",
+        "sha.h": "c",
+        "xalloc.h": "c",
+        "errno.h": "c"
     }
 }
