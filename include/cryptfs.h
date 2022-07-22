@@ -14,6 +14,9 @@
 #define RSA_KEY_SIZE_BITS 2048
 #define RSA_KEY_SIZE_BYTES (RSA_KEY_SIZE_BITS / 8)
 
+#define AES_KEY_SIZE_BITS 256
+#define AES_KEY_SIZE_BYTES (AES_KEY_SIZE_BITS / 8)
+
 #define ENTRY_NAME_LEN 128
 
 enum ENTRY_TYPE {
@@ -51,9 +54,7 @@ struct CryptFS_Directory {
 
 struct Crypt_FS_Key {
 	uint64_t rsa_e; // Public exponent of the RSA keypair
-	uint8_t rsa_n[RSA_KEY_SIZE_BYTES]; // RSA public number 'n' (the modulus)
-    uint8_t private_key_hash[SHA384_DIGEST_LENGTH]; // Hash of the private key
-                                                    // (SHA384)
+    uint8_t rsa_n[RSA_KEY_SIZE_BYTES]; // RSA public number 'n' (the modulus)
     uint8_t aes_key_ciphered[RSA_KEY_SIZE_BYTES]; // AES key ciphered with RSA
                                                   // public key
 } __attribute__((packed));

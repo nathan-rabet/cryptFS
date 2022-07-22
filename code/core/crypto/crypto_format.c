@@ -1,10 +1,16 @@
 #include <errno.h>
+#include <openssl/aes.h>
+#include <openssl/err.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 #include <openssl/rsa.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "cryptfs.h"
 #include "crypto.h"
+#include "errors.h"
 #include "xalloc.h"
 
 #define STR(x) #x
@@ -48,10 +54,14 @@ void store_keys_in_headers(struct CryptFS_Header *header, RSA *rsa_keypair,
             // Store the encrypted AES key in the header
             printf("Encrypting the AES key with the RSA keypair...\n");
             int encrypted_aes_key_size = RSA_public_encrypt(
-                RSA_KEY_SIZE_BYTES, aes_key, header->keys[i].aes_key_ciphered,
-                rsa_keypair, RSA_NO_PADDING);
+                AES_KEY_SIZE_BYTES, aes_key, header->keys[i].aes_key_ciphered,
+                rsa_keypair, RSA_PKCS1_OAEP_PADDING);
             if (encrypted_aes_key_size == -1)
-                error_exit("Failed to encrypt AES key", EXIT_FAILURE);
+            {
+                unsigned long errorTrack = ERR_get_error();
+                char *error = ERR_error_string(errorTrack, NULL);
+                error_exit(error, EXIT_FAILURE);
+            }
             break;
         }
     }
@@ -120,26 +130,36 @@ int8_t find_rsa_matching_key(RSA *rsa_private, struct CryptFS_Header *header)
         // Compare the exponent and the modulus of the both keys
         BIGNUM *header_modulus =
             BN_bin2bn(header->keys[i].rsa_n, RSA_KEY_SIZE_BYTES, NULL);
-        if (header->keys[i].rsa_e != RSA_EXPONENT
-            || BN_cmp(RSA_get0_n(rsa_private), header_modulus) != 0)
+        if (header->keys[i].rsa_e == RSA_EXPONENT
+            && BN_cmp(RSA_get0_n(rsa_private), header_modulus) == 0)
         {
+            // Creating test RSA key
             RSA *rsa_test = RSA_new();
+            BIGNUM *rsa_test_n =
+                BN_bin2bn(header->keys[i].rsa_n, RSA_KEY_SIZE_BYTES, NULL);
+            BIGNUM *rsa_test_e =
+                BN_bin2bn((unsigned char *)&header->keys[i].rsa_e, 1, NULL);
+            BIGNUM *rsa_test_d = BN_dup(RSA_get0_d(rsa_private));
+
             if (!rsa_test)
                 error_exit("Failed to allocate RSA keypair", EXIT_FAILURE);
 
-            if (!RSA_set0_key(
-                    rsa_test,
-                    BN_bin2bn(header->keys[i].rsa_n, RSA_KEY_SIZE_BYTES, NULL),
-                    BN_bin2bn(header->keys[i].rsa_e, RSA_KEY_SIZE_BYTES, NULL),
-                    RSA_get0_d(rsa_private)))
+            if (!RSA_set0_key(rsa_test, rsa_test_n, rsa_test_e, rsa_test_d))
+                error_exit("Failed to set the RSA keypair", EXIT_FAILURE);
 
-                if (RSA_check_key(rsa_test) == 1)
-                {
-                    BN_free(header_modulus);
-                    RSA_free(rsa_test);
-                    return i;
-                }
+            if (RSA_check_key(rsa_test) == 1)
+            {
+                BN_free(header_modulus);
+                RSA_free(rsa_test);
+                BN_free(rsa_test_n);
+                BN_free(rsa_test_e);
+                BN_free(rsa_test_d);
+                return i;
+            }
             RSA_free(rsa_test);
+            BN_free(rsa_test_n);
+            BN_free(rsa_test_e);
+            BN_free(rsa_test_d);
         }
         BN_free(header_modulus);
     }

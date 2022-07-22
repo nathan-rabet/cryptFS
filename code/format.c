@@ -3,6 +3,7 @@
 #include <openssl/rsa.h>
 
 #include "cryptfs.h"
+#include "crypto.h"
 #include "errors.h"
 
 bool is_already_formatted(const char *file_path)
@@ -66,7 +67,7 @@ void format_fs(const char *path)
 
     // Generate AES + RSA keys
     unsigned char aes_key[RSA_KEY_SIZE_BYTES] = { 0 };
-    RSA *keypair = NULL;
+    RSA *keypair = RSA_new();
     generate_keys(aes_key, keypair);
 
     // Store the RSA modulus and the RSA public exponent in the header

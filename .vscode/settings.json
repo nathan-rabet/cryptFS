@@ -6,6 +6,9 @@
         "hash.h": "c",
         "sha.h": "c",
         "xalloc.h": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "types.h": "c",
+        "string.h": "c",
+        "random": "c"
     }
 }

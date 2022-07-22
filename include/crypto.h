@@ -1,17 +1,18 @@
 #ifndef CRYPTO_H
 #define CRYPTO_H
 
+#include <openssl/aes.h>
 #include <openssl/rsa.h>
 
 #include "cryptfs.h"
 
-#define RSA_EXPONENT 3
+#define RSA_EXPONENT 65537
 
 /**
  * @brief Generates a new RSA keypair + an AES key.
  *
- * @param aes_key The AES key which is generated.
- * @param rsa_keypair The RSA keypair which is generated.
+ * @param aes_key The AES key which is generated (returned).
+ * @param rsa_keypair The RSA keypair which is generated (returned).
  */
 void generate_keys(unsigned char *aes_key, RSA *rsa_keypair);
 
@@ -24,6 +25,14 @@ void generate_keys(unsigned char *aes_key, RSA *rsa_keypair);
  */
 void store_keys_in_headers(struct CryptFS_Header *header, RSA *rsa_keypair,
                            unsigned char *aes_key);
+
+/**
+ * @brief Writes the RSA private and public keys to a file.
+ *
+ * @param rsa_keypair The RSA keypair which is written.
+ * @param path_to_write The path to the file which is written.
+ */
+void write_rsa_keys_on_disk(RSA *rsa_keypair, const char *path_to_write);
 
 /**
  * @brief Find the key in the header which matches the given RSA keypair (user

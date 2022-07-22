@@ -18,7 +18,7 @@ FORMAT_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(FORMAT_SRC:.c=.o))
 
 format: $(BUILD_DIR)/format $(OBJ)
 
-$(BUILD_DIR)/format: $(FORMAT_OBJ)
+$(BUILD_DIR)/format: $(FORMAT_OBJ) $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $(BUILD_DIR)/format
 
 $(BUILD_DIR)/%.o: $(PROJECT_DIR)/%.c
