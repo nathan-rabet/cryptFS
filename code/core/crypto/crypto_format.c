@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <errno.h>
 #include <openssl/aes.h>
 #include <openssl/err.h>
@@ -31,6 +32,7 @@ void generate_keys(unsigned char *aes_key, RSA *rsa_keypair)
             != 1)
         error_exit("Failed to generate RSA keypair", EXIT_FAILURE);
 
+    assert(BN_is_word(exponent, RSA_EXPONENT));
     BN_free(exponent);
 }
 
@@ -93,7 +95,7 @@ void write_rsa_keys_on_disk(RSA *rsa_keypair, const char *path_to_write)
     strcat(private_pem_path, "/.cryptfs/private.pem");
 
     // Create the directories
-    printf("Creating the directories...\n");
+    printf("Creating the directories where the RSA keys will be...\n");
     if (mkdir(cryptfs_path, 0755) != 0 && errno != EEXIST)
         error_exit("Failed to create the directories", EXIT_FAILURE);
 

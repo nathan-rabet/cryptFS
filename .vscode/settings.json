@@ -9,6 +9,9 @@
         "errno.h": "c",
         "types.h": "c",
         "string.h": "c",
-        "random": "c"
+        "random": "c",
+        "criterion.h": "c",
+        "format.h": "c",
+        "aes.h": "c"
     }
 }

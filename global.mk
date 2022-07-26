@@ -12,6 +12,7 @@ bluetext = "\e[34m$(1)\e[0m"
 PROJECT_DIR ?= $(shell false) # MUST BE SET BEFORE INCLUDING THIS FILE
 
 BUILD_DIR = $(PROJECT_DIR)/build
+TESTS_DIR = $(PROJECT_DIR)/tests
 
 SRC_CODE_DIR = $(PROJECT_DIR)/code
 SRC_CORE_DIR = $(SRC_CODE_DIR)/core

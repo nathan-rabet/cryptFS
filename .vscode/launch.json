@@ -8,7 +8,7 @@
             "name": "format",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/format",
+            "program": "${workspaceFolder}/build/format_main",
             "args": [
                 "${input:formatArg}"
             ],
