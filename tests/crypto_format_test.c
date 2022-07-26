@@ -3,6 +3,7 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 #include <openssl/rsa.h>
+#include <unistd.h>
 
 #include "cryptfs.h"
 #include "crypto.h"
@@ -79,4 +80,43 @@ Test(store_keys_in_headers, store_keys_in_headers, .init = cr_redirect_stdout)
     RSA_free(rsa_keypair);
     BN_free(e);
     BN_free(n);
+}
+
+Test(write_rsa_keys_on_disk, write_rsa_keys_on_disk, .init = cr_redirect_stdout)
+{
+    RSA *rsa_keypair = RSA_new();
+    unsigned char *aes_key = xcalloc(1, RSA_KEY_SIZE_BYTES + 1);
+
+    generate_keys(aes_key, rsa_keypair);
+    write_rsa_keys_on_disk(rsa_keypair, "build");
+
+    // Check if the files exists
+    cr_assert(access("build/.cryptfs/public.pem", F_OK) == 0,
+              "File 'build/.cryptfs/public.pem' does not exist");
+    cr_assert(access("build/.cryptfs/private.pem", F_OK) == 0,
+              "File 'build/.cryptfs/private.pem' does not exist");
+
+    // Check if these file are correct PEM keys
+    FILE *fp = fopen("build/.cryptfs/public.pem", "r");
+    char *rsa_pem = xcalloc(RSA_size(rsa_keypair) + 1, 1);
+    fread(rsa_pem, 1, RSA_size(rsa_keypair), fp);
+    fclose(fp);
+    cr_assert_arr_eq(rsa_pem, "-----BEGIN PUBLIC KEY-----",
+                     strlen("-----BEGIN PUBLIC KEY-----"));
+    free(rsa_pem);
+
+    fp = fopen("build/.cryptfs/private.pem", "r");
+    rsa_pem = xcalloc(RSA_size(rsa_keypair) + 1, 1);
+    fread(rsa_pem, 1, RSA_size(rsa_keypair), fp);
+    fclose(fp);
+    cr_assert_arr_eq(rsa_pem, "-----BEGIN RSA PRIVATE KEY-----",
+                     strlen("-----BEGIN RSA PRIVATE KEY-----"));
+    free(rsa_pem);
+
+    free(aes_key);
+    RSA_free(rsa_keypair);
+
+    // Remove the files
+    remove(".cryptfs/public.pem");
+    remove(".cryptfs/private.pem");
 }
