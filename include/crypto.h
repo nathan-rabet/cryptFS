@@ -17,14 +17,15 @@
 void generate_keys(unsigned char *aes_key, RSA *rsa_keypair);
 
 /**
- * @brief Stores the RSA modulus and the RSA public exponent in the header.
+ * @brief Stores the RSA modulus and the RSA public exponent in a keys storage.
  *
- * @param header
- * @param rsa_keypair
- * @param aes_key
+ * @param keys_storage The keys storage.
+ * @param rsa_keypair The RSA keypair: modulus and public exponent will be
+ * stored.
+ * @param aes_key The AES key: RSAPUB_Encrypt(aes_key) will be stored.
  */
-void store_keys_in_headers(struct CryptFS_Header *header, RSA *rsa_keypair,
-                           unsigned char *aes_key);
+void store_keys_in_keys_storage(struct CryptFS_Key *keys_storage,
+                                RSA *rsa_keypair, unsigned char *aes_key);
 
 /**
  * @brief Writes the RSA private and public keys to a file.
@@ -35,13 +36,14 @@ void store_keys_in_headers(struct CryptFS_Header *header, RSA *rsa_keypair,
 void write_rsa_keys_on_disk(RSA *rsa_keypair, const char *path_to_write);
 
 /**
- * @brief Find the key in the header which matches the given RSA keypair (user
- * one).
+ * @brief Find the key in the keys storage which matches the given RSA keypair
+ * (user one).
  *
- * @param rsa_private The RSA of the user
- * @param header The header to search in
+ * @param rsa_private The RSA of the user.
+ * @param keys_storage The keys storage to search in.
  * @return int8_t The index of the key in the header, -1 if not found.
  */
-int8_t find_rsa_matching_key(RSA *rsa_private, struct CryptFS_Header *header);
+int8_t find_rsa_matching_key(RSA *rsa_private,
+                             struct CryptFS_Key *keys_storage);
 
 #endif /* CRYPTO_H */

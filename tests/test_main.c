@@ -12,21 +12,22 @@
 
 int main(void)
 {
-    struct CryptFS_Header *header = xcalloc(1, sizeof(struct CryptFS_Header));
+    struct CryptFS_Key *keys_storage =
+        xcalloc(NB_ENCRYPTION_KEYS, sizeof(struct CryptFS_Key));
 
     RSA *rsa_keypair = RSA_new();
     unsigned char *aes_key = xcalloc(1, RSA_KEY_SIZE_BYTES + 1);
 
     generate_keys(aes_key, rsa_keypair);
-    store_keys_in_headers(header, rsa_keypair, aes_key);
+    store_keys_in_keys_storage(keys_storage, rsa_keypair, aes_key);
 
-    int8_t index = find_rsa_matching_key(rsa_keypair, header);
+    int8_t index = find_rsa_matching_key(rsa_keypair, keys_storage);
 
     printf("The index of the matching RSA keypair is %d\n", index);
 
     free(aes_key);
     RSA_free(rsa_keypair);
-    free(header);
+    free(keys_storage);
 
     return 0;
 }

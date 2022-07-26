@@ -36,27 +36,28 @@ void generate_keys(unsigned char *aes_key, RSA *rsa_keypair)
     BN_free(exponent);
 }
 
-// Store the RSA modulus and the RSA public exponent in the header
-void store_keys_in_headers(struct CryptFS_Header *header, RSA *rsa_keypair,
-                           unsigned char *aes_key)
+const char memZERO[RSA_KEY_SIZE_BYTES] = { 0 };
+void store_keys_in_keys_storage(struct CryptFS_Key *keys_storage,
+                                RSA *rsa_keypair, unsigned char *aes_key)
 {
     size_t i = 0;
+
     while (i < NB_ENCRYPTION_KEYS)
     {
-        if (header->keys[i].rsa_n == 0 || header->keys[i].rsa_e == 0)
+        // Check if keys_storage[i].rsa_n is full of 0
+        if (memcmp(keys_storage[i].rsa_n, memZERO, RSA_KEY_SIZE_BYTES) == 0)
         {
             const BIGNUM *modulus = RSA_get0_n(rsa_keypair);
 
             if (!modulus
                 || !BN_bn2bin(RSA_get0_n(rsa_keypair),
-                              (unsigned char *)&header->keys[i].rsa_n))
+                              (unsigned char *)&keys_storage[i].rsa_n))
                 error_exit("Failed to store RSA modulus", EXIT_FAILURE);
-            header->keys[i].rsa_e = RSA_EXPONENT;
 
             // Store the encrypted AES key in the header
             printf("Encrypting the AES key with the RSA keypair...\n");
             int encrypted_aes_key_size = RSA_public_encrypt(
-                AES_KEY_SIZE_BYTES, aes_key, header->keys[i].aes_key_ciphered,
+                AES_KEY_SIZE_BYTES, aes_key, keys_storage[i].aes_key_ciphered,
                 rsa_keypair, RSA_PKCS1_OAEP_PADDING);
             if (encrypted_aes_key_size == -1)
             {
@@ -66,6 +67,7 @@ void store_keys_in_headers(struct CryptFS_Header *header, RSA *rsa_keypair,
             }
             break;
         }
+        i++;
     }
 
     if (i == NB_ENCRYPTION_KEYS)
@@ -125,30 +127,27 @@ void write_rsa_keys_on_disk(RSA *rsa_keypair, const char *path_to_write)
     free(private_pem_path);
 }
 
-int8_t find_rsa_matching_key(RSA *rsa_private, struct CryptFS_Header *header)
+int8_t find_rsa_matching_key(RSA *rsa_private, struct CryptFS_Key *keys_storage)
 {
     for (uint8_t i = 0; i < NB_ENCRYPTION_KEYS; i++)
     {
         // Compare the exponent and the modulus of the both keys
         BIGNUM *header_modulus =
-            BN_bin2bn(header->keys[i].rsa_n, RSA_KEY_SIZE_BYTES, NULL);
-        if (header->keys[i].rsa_e == RSA_EXPONENT
-            && BN_cmp(RSA_get0_n(rsa_private), header_modulus) == 0)
+            BN_bin2bn(keys_storage[i].rsa_n, RSA_KEY_SIZE_BYTES, NULL);
+        if (BN_cmp(RSA_get0_n(rsa_private), header_modulus) == 0)
         {
             // Creating test RSA key
             RSA *rsa_test = RSA_new();
             BIGNUM *rsa_test_n =
-                BN_bin2bn(header->keys[i].rsa_n, RSA_KEY_SIZE_BYTES, NULL);
-            BIGNUM *rsa_test_e =
-                BN_lebin2bn((unsigned char *)&header->keys[i].rsa_e,
-                            sizeof(uint64_t), NULL);
-
+                BN_bin2bn(keys_storage[i].rsa_n, RSA_KEY_SIZE_BYTES, NULL);
+            BIGNUM *rsa_test_e = BN_new();
             BIGNUM *rsa_test_d = BN_dup(RSA_get0_d(rsa_private));
 
             BIGNUM *rsa_test_p = BN_dup(RSA_get0_p(rsa_private));
             BIGNUM *rsa_test_q = BN_dup(RSA_get0_q(rsa_private));
 
-            if (!rsa_test || !rsa_test_n || !rsa_test_e || !rsa_test_d
+            if (!rsa_test || !rsa_test_n || !rsa_test_e
+                || BN_set_word(rsa_test_e, RSA_EXPONENT) != 1 || !rsa_test_d
                 || !rsa_test_p || !rsa_test_q)
                 error_exit(
                     "Failed to allocate RSA keypair or to copy the RSA numbers",

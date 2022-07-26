@@ -3,25 +3,43 @@
 
 #include <stddef.h>
 
-extern char *BLOCK_PATH;
+extern char *DEVICE_PATH;
 
 /**
- * @brief Reads a block content from a file.
+ * @brief Set the device path global variable.
  *
- * @param block_num The block to read.
- * @param buffer Buffer to store the block content.
- * Must be at least BLOCK_SIZE bytes long.
- * @return int 0 on success, -1 on error.
+ * @param path The path to the device.
  */
-int read_block(size_t block_num, char *buffer);
+void set_device_path(const char *path);
 
 /**
- * @brief Writes the content of a buffer to a block.
+ * @brief Get the device path global variable.
  *
- * @param block_num The block to write to.
- * @param buffer The buffer from which to write.
- * @return int 0 on success, -1 on error.
+ * @return The device path global variable.
  */
-int write_block(size_t block_num, char *buffer);
+const char *get_device_path();
+
+/**
+ * @brief Read blocks from the device.
+ *
+ * @param start_block The first block to read.
+ * @param nb_blocks The number of blocks to read.
+ * @param buffer The buffer to fill with the blocks.
+ * (Must be allocated with at least CRYPTFS_BLOCK_SIZE_BYTES * nb_blocks bytes)
+ *
+ * @return 0 on success, -1 on error.
+ */
+int read_blocks(size_t start_block, size_t nb_blocks, char *buffer);
+
+/**
+ * @brief Write blocks to the device.
+ *
+ * @param start_block The first block to write.
+ * @param nb_blocks The number of blocks to write.
+ * @param buffer The buffer containing the blocks.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int write_blocks(size_t start_block, size_t nb_blocks, char *buffer);
 
 #endif /* BLOCK_H */

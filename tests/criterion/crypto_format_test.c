@@ -11,7 +11,7 @@
 #include "hash.h"
 #include "xalloc.h"
 
-Test(generate_keys, generate_keys, .init = cr_redirect_stdout)
+Test(generate_keys, generate_keys, .init = cr_redirect_stdout, .timeout = 10)
 {
     unsigned char *aes_key = xcalloc(1, AES_KEY_SIZE_BYTES);
     RSA *rsa_keypair = RSA_new();
@@ -42,32 +42,31 @@ Test(generate_keys, generate_keys, .init = cr_redirect_stdout)
     free(rsa_pem);
 }
 
-Test(store_keys_in_headers, store_keys_in_headers, .init = cr_redirect_stdout)
+Test(store_keys_in_keys_storage, store_keys_in_keys_storage,
+     .init = cr_redirect_stdout, .timeout = 10)
 {
-    struct CryptFS_Header *header = xcalloc(1, sizeof(struct CryptFS_Header));
+    struct CryptFS_Key *keys_storage = xcalloc(1, sizeof(struct CryptFS_Key));
 
     RSA *rsa_keypair = RSA_new();
     unsigned char *aes_key = xcalloc(1, RSA_KEY_SIZE_BYTES + 1);
 
     generate_keys(aes_key, rsa_keypair);
-    store_keys_in_headers(header, rsa_keypair, aes_key);
+    store_keys_in_keys_storage(keys_storage, rsa_keypair, aes_key);
 
     // Check if the RSA modulus and the RSA public exponent are stored in the
     // header
     BIGNUM *e = BN_new();
-    BN_set_word(e, header->keys[0].rsa_e);
-    BIGNUM *n = BN_bin2bn((const unsigned char *)&header->keys[0].rsa_n,
+    BN_set_word(e, RSA_EXPONENT);
+    BIGNUM *n = BN_bin2bn((const unsigned char *)&keys_storage[0].rsa_n,
                           RSA_KEY_SIZE_BYTES, NULL);
 
-    cr_assert(BN_is_word(e, RSA_EXPONENT), "%s != %d\n", BN_bn2hex(e),
-              RSA_EXPONENT);
     cr_assert(BN_cmp(n, RSA_get0_n(rsa_keypair)) == 0, "%s != %s\n",
               BN_bn2hex(n), BN_bn2hex(RSA_get0_n(rsa_keypair)));
 
     // Decrypt stored AES key and compares it to the constant aes_key_const
     unsigned char *aes_key_decrypted = xcalloc(1, RSA_KEY_SIZE_BYTES + 1);
     int decrypted_size = RSA_private_decrypt(
-        RSA_KEY_SIZE_BYTES, header->keys[0].aes_key_ciphered, aes_key_decrypted,
+        RSA_KEY_SIZE_BYTES, keys_storage[0].aes_key_ciphered, aes_key_decrypted,
         rsa_keypair, RSA_PKCS1_OAEP_PADDING);
     cr_assert(decrypted_size == AES_KEY_SIZE_BYTES,
               "(decrypted_size = %d) != AES_KEY_SIZE_BYTES", decrypted_size);
@@ -76,13 +75,14 @@ Test(store_keys_in_headers, store_keys_in_headers, .init = cr_redirect_stdout)
 
     free(aes_key);
     free(aes_key_decrypted);
-    free(header);
+    free(keys_storage);
     RSA_free(rsa_keypair);
     BN_free(e);
     BN_free(n);
 }
 
-Test(write_rsa_keys_on_disk, write_rsa_keys_on_disk, .init = cr_redirect_stdout)
+Test(write_rsa_keys_on_disk, write_rsa_keys_on_disk, .init = cr_redirect_stdout,
+     .timeout = 10)
 {
     RSA *rsa_keypair = RSA_new();
     unsigned char *aes_key = xcalloc(1, RSA_KEY_SIZE_BYTES + 1);
@@ -123,40 +123,42 @@ Test(write_rsa_keys_on_disk, write_rsa_keys_on_disk, .init = cr_redirect_stdout)
     remove("build/.cryptfs");
 }
 
-Test(find_rsa_matching_key, no_key, .init = cr_redirect_stdout)
+Test(find_rsa_matching_key, no_key, .init = cr_redirect_stdout, .timeout = 10)
 {
-    struct CryptFS_Header *header = xcalloc(1, sizeof(struct CryptFS_Header));
+    struct CryptFS_Key *keys_storage = xcalloc(1, sizeof(struct CryptFS_Key));
 
     RSA *rsa_keypair = RSA_new();
     unsigned char *aes_key = xcalloc(1, RSA_KEY_SIZE_BYTES + 1);
 
     generate_keys(aes_key, rsa_keypair);
-    store_keys_in_headers(header, rsa_keypair, aes_key);
+    store_keys_in_keys_storage(keys_storage, rsa_keypair, aes_key);
 
     RSA *rsa_keypair_different = RSA_new();
     generate_keys(aes_key, rsa_keypair_different);
 
-    cr_assert_eq(find_rsa_matching_key(rsa_keypair_different, header), -1);
+    cr_assert_eq(find_rsa_matching_key(rsa_keypair_different, keys_storage),
+                 -1);
 
     free(aes_key);
     RSA_free(rsa_keypair);
     RSA_free(rsa_keypair_different);
-    free(header);
+    free(keys_storage);
 }
 
-Test(find_rsa_matching_key, key, .init = cr_redirect_stdout)
+Test(find_rsa_matching_key, key, .init = cr_redirect_stdout, .timeout = 10)
 {
-    struct CryptFS_Header *header = xcalloc(1, sizeof(struct CryptFS_Header));
+    struct CryptFS_Key *keys_storage =
+        xcalloc(NB_ENCRYPTION_KEYS, sizeof(struct CryptFS_Key));
 
     RSA *rsa_keypair = RSA_new();
     unsigned char *aes_key = xcalloc(1, RSA_KEY_SIZE_BYTES + 1);
 
     generate_keys(aes_key, rsa_keypair);
-    store_keys_in_headers(header, rsa_keypair, aes_key);
+    store_keys_in_keys_storage(keys_storage, rsa_keypair, aes_key);
 
-    cr_assert_eq(find_rsa_matching_key(rsa_keypair, header), 0);
+    cr_assert_eq(find_rsa_matching_key(rsa_keypair, keys_storage), 0);
 
     free(aes_key);
     RSA_free(rsa_keypair);
-    free(header);
+    free(keys_storage);
 }

@@ -2,9 +2,11 @@
 
 #include <openssl/rsa.h>
 
+#include "block.h"
 #include "cryptfs.h"
 #include "crypto.h"
 #include "errors.h"
+#include "xalloc.h"
 
 bool is_already_formatted(const char *file_path)
 {
@@ -55,15 +57,15 @@ void format_fs(const char *path)
     }
 
     // Craft the header
-    struct CryptFS_Header header = {
-        .boot = { 0x90, 0x90, 0x90, 0x90, 0x90 }, // Nop sled
-        .magic = CRYPTFS_MAGIC,
-        .version = CRYPTFS_VERSION,
-        .blocksize = CRYPTFS_BLOCK_SIZE,
-        .fat = { .next_fat_block = FAT_BLOCK_END, .entries = { 0 } },
-    };
-    header.fat.entries[0] =
-        FAT_BLOCK_RESERVED; // Root directory is the first entry of the FAT
+    struct CryptFS *cfs = xcalloc(1, sizeof(struct CryptFS));
+    cfs->header.magic = CRYPTFS_MAGIC;
+    cfs->header.version = CRYPTFS_VERSION;
+    cfs->header.blocksize = CRYPTFS_BLOCK_SIZE_BYTES;
+    cfs->header.boot[0] = 0x90;
+    cfs->header.boot[1] = 0x90;
+    cfs->header.boot[2] = 0x90;
+    cfs->header.boot[3] = 0x90;
+    cfs->header.boot[4] = 0x90;
 
     // Generate AES + RSA keys
     unsigned char aes_key[RSA_KEY_SIZE_BYTES] = { 0 };
@@ -71,23 +73,32 @@ void format_fs(const char *path)
     generate_keys(aes_key, keypair);
 
     // Store the RSA modulus and the RSA public exponent in the header
-    store_keys_in_headers(&header, keypair, aes_key);
+    store_keys_in_keys_storage(cfs->keys_storage, keypair, aes_key);
 
     // Get user directory path
     char *user_dir_path = getenv("HOME");
     if (!user_dir_path)
-    {
-        perror("Impossible to get the user directory path");
-        exit(EXIT_FAILURE);
-    }
+        error_exit("Impossible to get the user directory path", EXIT_FAILURE);
+
     write_rsa_keys_on_disk(keypair, user_dir_path);
 
-    // Write the header
-    if (fwrite(&header, sizeof(struct CryptFS_Header), 1, file) != 1)
-    {
-        perror("Impossible to write the header");
-        exit(EXIT_FAILURE);
-    }
+    // Set the device path
+    set_device_path(path);
+
+    // Write the header (at block 0)
+    if (write_blocks(0, 1, (char *)&cfs->header) == -1)
+        error_exit("Impossible to write the header", EXIT_FAILURE);
+
+    // Write CRYPTS_BLOCK_SIZE bytes of 0x00 on block 1 and 2
+    // (the first FAT and the root directory)
+    char *zero = xcalloc(1, CRYPTFS_BLOCK_SIZE_BYTES);
+    if (write_blocks(1, 1, zero) != 0 || write_blocks(2, 1, zero) != 0)
+        error_exit("Impossible to write zero's on block 1 or block 2",
+                   EXIT_FAILURE);
+
+    free(cfs);
+    free(zero);
     RSA_free(keypair);
+
     fclose(file);
 }

@@ -3,7 +3,7 @@
 
 #include "format.h"
 
-Test(is_already_formatted, not_formated)
+Test(is_already_formatted, not_formated, .timeout = 10)
 {
     cr_assert(!is_already_formatted("tests/format_test.c"));
 }
