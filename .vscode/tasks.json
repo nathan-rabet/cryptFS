@@ -12,6 +12,18 @@
                 "cwd": "${workspaceFolder}"
             }
         },
+        {
+            "label": "make test_main",
+            "type": "shell",
+            "command": "/usr/bin/make",
+            "args": [
+                "test_main",
+                "-j",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
     ],
     "version": "2.0.0"
 }

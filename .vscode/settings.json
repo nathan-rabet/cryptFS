@@ -12,6 +12,10 @@
         "random": "c",
         "criterion.h": "c",
         "format.h": "c",
-        "aes.h": "c"
+        "aes.h": "c",
+        "block.h": "c",
+        "stdio.h": "c",
+        "errors.h": "c",
+        "error.h": "c"
     }
 }

@@ -63,7 +63,7 @@ void format_fs(const char *path)
         .fat = { .next_fat_block = FAT_BLOCK_END, .entries = { 0 } },
     };
     header.fat.entries[0] =
-        FAT_BLOCK_END; // Root directory is the first entry of the FAT
+        FAT_BLOCK_RESERVED; // Root directory is the first entry of the FAT
 
     // Generate AES + RSA keys
     unsigned char aes_key[RSA_KEY_SIZE_BYTES] = { 0 };

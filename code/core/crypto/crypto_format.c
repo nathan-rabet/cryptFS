@@ -140,28 +140,36 @@ int8_t find_rsa_matching_key(RSA *rsa_private, struct CryptFS_Header *header)
             BIGNUM *rsa_test_n =
                 BN_bin2bn(header->keys[i].rsa_n, RSA_KEY_SIZE_BYTES, NULL);
             BIGNUM *rsa_test_e =
-                BN_bin2bn((unsigned char *)&header->keys[i].rsa_e, 1, NULL);
+                BN_lebin2bn((unsigned char *)&header->keys[i].rsa_e,
+                            sizeof(uint64_t), NULL);
+
             BIGNUM *rsa_test_d = BN_dup(RSA_get0_d(rsa_private));
 
-            if (!rsa_test)
-                error_exit("Failed to allocate RSA keypair", EXIT_FAILURE);
+            BIGNUM *rsa_test_p = BN_dup(RSA_get0_p(rsa_private));
+            BIGNUM *rsa_test_q = BN_dup(RSA_get0_q(rsa_private));
 
-            if (!RSA_set0_key(rsa_test, rsa_test_n, rsa_test_e, rsa_test_d))
+            if (!rsa_test || !rsa_test_n || !rsa_test_e || !rsa_test_d
+                || !rsa_test_p || !rsa_test_q)
+                error_exit(
+                    "Failed to allocate RSA keypair or to copy the RSA numbers",
+                    EXIT_FAILURE);
+
+            if (!RSA_set0_key(rsa_test, rsa_test_n, rsa_test_e, rsa_test_d)
+                || !RSA_set0_factors(rsa_test, rsa_test_p, rsa_test_q))
                 error_exit("Failed to set the RSA keypair", EXIT_FAILURE);
 
             if (RSA_check_key(rsa_test) == 1)
             {
-                BN_free(header_modulus);
                 RSA_free(rsa_test);
-                BN_free(rsa_test_n);
-                BN_free(rsa_test_e);
-                BN_free(rsa_test_d);
+                BN_free(header_modulus);
                 return i;
             }
+
+            // Print RSA error
+            unsigned long errorTrack = ERR_get_error();
+            char *error = ERR_error_string(errorTrack, NULL);
+            fprintf(stderr, "RSA error: %s\n", error);
             RSA_free(rsa_test);
-            BN_free(rsa_test_n);
-            BN_free(rsa_test_e);
-            BN_free(rsa_test_d);
         }
         BN_free(header_modulus);
     }

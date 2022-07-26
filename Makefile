@@ -34,6 +34,12 @@ $(BUILD_DIR)/tests_suite: LDFLAGS += -lcriterion
 $(BUILD_DIR)/tests_suite: $(TESTS_OBJ) $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $(BUILD_DIR)/tests_suite
 
+test_main: $(BUILD_DIR)/test_main
+	
+
+$(BUILD_DIR)/test_main: $(OBJ) $(BUILD_DIR)/tests/test_main.o
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)/test_main $^ $(LDFLAGS)
+
 check: tests_suite
 	$(BUILD_DIR)/tests_suite
 
