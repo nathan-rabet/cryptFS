@@ -120,3 +120,24 @@ Test(write_rsa_keys_on_disk, write_rsa_keys_on_disk, .init = cr_redirect_stdout)
     remove(".cryptfs/public.pem");
     remove(".cryptfs/private.pem");
 }
+
+Test(find_rsa_matching_key, no_key, .init = cr_redirect_stdout)
+{
+    struct CryptFS_Header *header = xcalloc(1, sizeof(struct CryptFS_Header));
+
+    RSA *rsa_keypair = RSA_new();
+    unsigned char *aes_key = xcalloc(1, RSA_KEY_SIZE_BYTES + 1);
+
+    generate_keys(aes_key, rsa_keypair);
+    store_keys_in_headers(header, rsa_keypair, aes_key);
+
+    RSA *rsa_keypair_different = RSA_new();
+    generate_keys(aes_key, rsa_keypair_different);
+
+    cr_assert_eq(find_rsa_matching_key(rsa_keypair_different, header), -1);
+
+    free(aes_key);
+    RSA_free(rsa_keypair);
+    RSA_free(rsa_keypair_different);
+    free(header);
+}
