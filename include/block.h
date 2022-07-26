@@ -29,7 +29,7 @@ const char *get_device_path();
  *
  * @return 0 on success, -1 on error.
  */
-int read_blocks(size_t start_block, size_t nb_blocks, char *buffer);
+int read_blocks(size_t start_block, size_t nb_blocks, void *buffer);
 
 /**
  * @brief Write blocks to the device.
@@ -40,6 +40,6 @@ int read_blocks(size_t start_block, size_t nb_blocks, char *buffer);
  *
  * @return 0 on success, -1 on error.
  */
-int write_blocks(size_t start_block, size_t nb_blocks, char *buffer);
+int write_blocks(size_t start_block, size_t nb_blocks, void *buffer);
 
 #endif /* BLOCK_H */

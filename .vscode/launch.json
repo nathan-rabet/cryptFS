@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/build/test_main",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/build",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -33,7 +33,7 @@
             "name": "format",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/format_main",
+            "program": "${workspaceFolder}/build/formater",
             "args": [
                 "${input:formatArg}"
             ],

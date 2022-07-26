@@ -16,7 +16,7 @@ const char *get_device_path()
     return BLOCK_PATH;
 }
 
-int read_blocks(size_t start_block, size_t nb_blocks, char *buffer)
+int read_blocks(size_t start_block, size_t nb_blocks, void *buffer)
 {
     if (nb_blocks == 0)
         return 0;
@@ -31,10 +31,10 @@ int read_blocks(size_t start_block, size_t nb_blocks, char *buffer)
         return -1;
 
     size_t read = 0;
-    while (read < CRYPTFS_BLOCK_SIZE_BYTES * nb_blocks)
+    while (read < nb_blocks)
     {
-        size_t n = fread(buffer + read, 1,
-                         (CRYPTFS_BLOCK_SIZE_BYTES * nb_blocks) - read, file);
+        size_t n = fread(buffer + read * CRYPTFS_BLOCK_SIZE_BYTES,
+                         CRYPTFS_BLOCK_SIZE_BYTES, nb_blocks - read, file);
         if (n == 0)
             return -1;
         read += n;
@@ -46,7 +46,7 @@ int read_blocks(size_t start_block, size_t nb_blocks, char *buffer)
     return 0;
 }
 
-int write_blocks(size_t start_block, size_t nb_blocks, char *buffer)
+int write_blocks(size_t start_block, size_t nb_blocks, void *buffer)
 {
     if (nb_blocks == 0)
         return 0;

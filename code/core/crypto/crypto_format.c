@@ -55,7 +55,7 @@ void store_keys_in_keys_storage(struct CryptFS_Key *keys_storage,
                 error_exit("Failed to store RSA modulus", EXIT_FAILURE);
 
             // Store the encrypted AES key in the header
-            printf("Encrypting the AES key with the RSA keypair...\n");
+            printf("Encrypting the AES key with the RSA public key...\n");
             int encrypted_aes_key_size = RSA_public_encrypt(
                 AES_KEY_SIZE_BYTES, aes_key, keys_storage[i].aes_key_ciphered,
                 rsa_keypair, RSA_PKCS1_OAEP_PADDING);
@@ -97,7 +97,6 @@ void write_rsa_keys_on_disk(RSA *rsa_keypair, const char *path_to_write)
     strcat(private_pem_path, "/.cryptfs/private.pem");
 
     // Create the directories
-    printf("Creating the directories where the RSA keys will be...\n");
     if (mkdir(cryptfs_path, 0755) != 0 && errno != EEXIST)
         error_exit("Failed to create the directories", EXIT_FAILURE);
 

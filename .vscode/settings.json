@@ -16,6 +16,9 @@
         "block.h": "c",
         "stdio.h": "c",
         "errors.h": "c",
-        "error.h": "c"
+        "error.h": "c",
+        "cstdlib": "c",
+        "crypto.h": "c",
+        "redirect.h": "c"
     }
 }

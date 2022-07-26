@@ -5,29 +5,42 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "block.h"
 #include "cryptfs.h"
 #include "crypto.h"
+#include "errors.h"
 #include "format.h"
 #include "xalloc.h"
 
 int main(void)
 {
-    struct CryptFS_Key *keys_storage =
-        xcalloc(NB_ENCRYPTION_KEYS, sizeof(struct CryptFS_Key));
+    struct CryptFS *cfs_before = xcalloc(1, sizeof(struct CryptFS));
+    struct CryptFS *cfs_after = xcalloc(1, sizeof(struct CryptFS));
 
-    RSA *rsa_keypair = RSA_new();
-    unsigned char *aes_key = xcalloc(1, RSA_KEY_SIZE_BYTES + 1);
+    format_fill_filesystem_struct(cfs_before);
 
-    generate_keys(aes_key, rsa_keypair);
-    store_keys_in_keys_storage(keys_storage, rsa_keypair, aes_key);
+    // Write the CryptFS to the file
+    FILE *file = fopen("integrity.test.cfs", "w");
+    if (file == NULL || fwrite(cfs_before, sizeof(*cfs_before), 1, file) != 1)
+        error_exit("Impossible to write the filesystem structure on the disk",
+                   EXIT_FAILURE);
+    fclose(file);
 
-    int8_t index = find_rsa_matching_key(rsa_keypair, keys_storage);
+    // Set the device (global variable) to the file (used by read/write_blocks)
+    set_device_path("integrity.test.cfs");
 
-    printf("The index of the matching RSA keypair is %d\n", index);
-
-    free(aes_key);
-    RSA_free(rsa_keypair);
-    free(keys_storage);
+    // Read the the CryptFS
+    read_blocks(0, 67, cfs_after);
+    // Compare the two cfs
+    for (size_t i = 0; i < sizeof(struct CryptFS); i++)
+        if (((char *)cfs_before)[i] != ((char *)cfs_after)[i])
+        {
+            // Print the first 10 byte that are different
+            for (size_t j = 0; j < 10; j++)
+                printf("%02x != %02x\n", ((char *)cfs_before)[i + j],
+                       ((char *)cfs_after)[i + j]);
+            assert(0);
+        }
 
     return 0;
 }

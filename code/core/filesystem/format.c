@@ -31,6 +31,57 @@ bool is_already_formatted(const char *file_path)
     return true;
 }
 
+void format_fill_filesystem_struct(struct CryptFS *cfs)
+{
+    /// ------------------------------------------------------------
+    /// BLOCK 0 : HEADER
+    /// ------------------------------------------------------------
+
+    // Craft the header
+    cfs->header.magic = CRYPTFS_MAGIC;
+    cfs->header.version = CRYPTFS_VERSION;
+    cfs->header.blocksize = CRYPTFS_BLOCK_SIZE_BYTES;
+
+    for (size_t i = 0; i < CRYPTFS_BOOT_SECTION_SIZE_BYTES; i++)
+        cfs->header.boot[i] = 0x90; // NOP sled
+
+    /// ------------------------------------------------------------
+    /// BLOCK 1 : KEYS STORAGE
+    /// ------------------------------------------------------------
+
+    // Generate AES + RSA keys
+    unsigned char aes_key[RSA_KEY_SIZE_BYTES] = { 0 };
+    RSA *keypair = RSA_new();
+    generate_keys(aes_key, keypair);
+
+    // Store the RSA modulus and the RSA public exponent in the header
+    store_keys_in_keys_storage(cfs->keys_storage, keypair, aes_key);
+
+    // Get user directory path
+    char *user_dir_path = getenv("HOME");
+    if (!user_dir_path)
+        error_exit("Impossible to get the user directory path", EXIT_FAILURE);
+
+    // Write the RSA public and private keys in the user directory
+    write_rsa_keys_on_disk(keypair, user_dir_path);
+
+    /// ------------------------------------------------------------
+    /// BLOCK 2 : FAT (File Allocation Table)
+    /// ------------------------------------------------------------
+
+    // Write the first FAT (at block 2)
+    cfs->first_fat.entries[0].next_block = FAT_BLOCK_RESERVED; // Header
+    cfs->first_fat.entries[1].next_block = FAT_BLOCK_RESERVED; // Keys storage
+    cfs->first_fat.entries[2].next_block = FAT_BLOCK_END; // This FAT
+
+    /// ------------------------------------------------------------
+    /// BLOCK 3 : ROOT DIRECTORY
+    /// ------------------------------------------------------------
+    //// Noting to add
+
+    RSA_free(keypair);
+}
+
 void format_fs(const char *path)
 {
     // Check if the file is already formatted
@@ -49,56 +100,19 @@ void format_fs(const char *path)
             printf("Overwriting...\n");
     }
 
+    struct CryptFS *cfs = xcalloc(1, sizeof(struct CryptFS));
+
+    format_fill_filesystem_struct(cfs);
+
     FILE *file = fopen(path, "w+");
     if (file == NULL)
-    {
-        perror("Impossible to open the file for formatting");
-        exit(EXIT_FAILURE);
-    }
+        error_exit("Impossible to open the file", EXIT_FAILURE);
 
-    // Craft the header
-    struct CryptFS *cfs = xcalloc(1, sizeof(struct CryptFS));
-    cfs->header.magic = CRYPTFS_MAGIC;
-    cfs->header.version = CRYPTFS_VERSION;
-    cfs->header.blocksize = CRYPTFS_BLOCK_SIZE_BYTES;
-    cfs->header.boot[0] = 0x90;
-    cfs->header.boot[1] = 0x90;
-    cfs->header.boot[2] = 0x90;
-    cfs->header.boot[3] = 0x90;
-    cfs->header.boot[4] = 0x90;
-
-    // Generate AES + RSA keys
-    unsigned char aes_key[RSA_KEY_SIZE_BYTES] = { 0 };
-    RSA *keypair = RSA_new();
-    generate_keys(aes_key, keypair);
-
-    // Store the RSA modulus and the RSA public exponent in the header
-    store_keys_in_keys_storage(cfs->keys_storage, keypair, aes_key);
-
-    // Get user directory path
-    char *user_dir_path = getenv("HOME");
-    if (!user_dir_path)
-        error_exit("Impossible to get the user directory path", EXIT_FAILURE);
-
-    write_rsa_keys_on_disk(keypair, user_dir_path);
-
-    // Set the device path
-    set_device_path(path);
-
-    // Write the header (at block 0)
-    if (write_blocks(0, 1, (char *)&cfs->header) == -1)
-        error_exit("Impossible to write the header", EXIT_FAILURE);
-
-    // Write CRYPTS_BLOCK_SIZE bytes of 0x00 on block 1 and 2
-    // (the first FAT and the root directory)
-    char *zero = xcalloc(1, CRYPTFS_BLOCK_SIZE_BYTES);
-    if (write_blocks(1, 1, zero) != 0 || write_blocks(2, 1, zero) != 0)
-        error_exit("Impossible to write zero's on block 1 or block 2",
-                   EXIT_FAILURE);
+    // Write the filesystem structure on the disk
+    printf("Writing the filesystem structure on the disk...\n");
+    fwrite(cfs, sizeof(*cfs), 1, file);
 
     free(cfs);
-    free(zero);
-    RSA_free(keypair);
 
     fclose(file);
 }

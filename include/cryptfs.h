@@ -73,8 +73,7 @@ struct CryptFS_Key
 
 struct CryptFS_FAT_Entry
 {
-    uint32_t fat_block; // Block of the entry
-    uint32_t entry_offset; // Offset of the entry in the block
+    uint32_t next_block; // Next block in the FAT chain
 } __attribute__((packed));
 
 struct CryptFS_FAT
@@ -83,9 +82,10 @@ struct CryptFS_FAT
     struct CryptFS_FAT_Entry entries[];
 } __attribute__((packed, aligned(CRYPTFS_BLOCK_SIZE_BYTES)));
 
+#define CRYPTFS_BOOT_SECTION_SIZE_BYTES 5
 struct CryptFS_Header
 {
-    uint8_t boot[5]; // Reserved for future use
+    uint8_t boot[CRYPTFS_BOOT_SECTION_SIZE_BYTES]; // Reserved for future use
     uint64_t magic; // CRYPTFS_MAGIC
     uint8_t version; // CRYPTFS_VERSION
     uint32_t blocksize; // in bytes
@@ -93,18 +93,10 @@ struct CryptFS_Header
 
 struct CryptFS
 {
-    struct CryptFS_Header header;
-    struct CryptFS_Key keys_storage[NB_ENCRYPTION_KEYS];
-    struct CryptFS_FAT first_fat;
-    struct CryptFS_Directory root_directory;
+    struct CryptFS_Header header; // BLOCK 0: Header
+    struct CryptFS_Key keys_storage[NB_ENCRYPTION_KEYS]; // BLOCK 1-64: Keys
+    struct CryptFS_FAT first_fat; // BLOCK 65: FAT
+    struct CryptFS_Directory root_directory; // BLOCK 66: Root directory
 };
 
-#    define SSS sizeof(struct CryptFS)
-
 #endif /* CRYPT_FS_H */
-
-//
-// BLOCK 1: Header
-// BLOCK 2-65: Keys
-// BLOCK 66: FAT
-// BLOCK 67: Root directory

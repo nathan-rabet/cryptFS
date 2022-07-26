@@ -16,13 +16,13 @@ OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(SRC:.c=.o))
 TESTS_SRC = $(shell find $(TESTS_DIR) -name '*.c')
 TESTS_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(TESTS_SRC:.c=.o))
 
-FORMAT_SRC = $(SRC_CODE_DIR)/format_main.c
+FORMAT_SRC = $(SRC_CODE_DIR)/formater.c
 FORMAT_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(FORMAT_SRC:.c=.o))
 
-format: $(BUILD_DIR)/format_main $(OBJ)
+formater: $(BUILD_DIR)/formater $(OBJ)
 
-$(BUILD_DIR)/format_main: $(FORMAT_OBJ) $(OBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $(BUILD_DIR)/format_main
+$(BUILD_DIR)/formater: $(FORMAT_OBJ) $(OBJ)
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $(BUILD_DIR)/formater
 
 $(BUILD_DIR)/%.o: $(PROJECT_DIR)/%.c
 	mkdir -p $(dir $@)
