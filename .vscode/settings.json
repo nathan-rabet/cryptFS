@@ -19,6 +19,8 @@
         "error.h": "c",
         "cstdlib": "c",
         "crypto.h": "c",
-        "redirect.h": "c"
+        "redirect.h": "c",
+        "fat.h": "c",
+        "limits.h": "c"
     }
 }

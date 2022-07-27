@@ -1,11 +1,11 @@
 {
     "tasks": [
         {
-            "label": "make format",
+            "label": "make formater",
             "type": "shell",
             "command": "/usr/bin/make",
             "args": [
-                "format",
+                "formater",
                 "-j",
             ],
             "options": {

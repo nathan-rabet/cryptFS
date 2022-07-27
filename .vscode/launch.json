@@ -30,7 +30,7 @@
             "preLaunchTask": "make test_main"
         },
         {
-            "name": "format",
+            "name": "formater",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/formater",
@@ -49,7 +49,7 @@
                     "ignoreFailures": true
                 },
             ],
-            "preLaunchTask": "make format"
+            "preLaunchTask": "make formater"
         },
     ],
     "inputs": [

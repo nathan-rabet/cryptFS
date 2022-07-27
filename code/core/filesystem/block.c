@@ -1,10 +1,12 @@
 #include "block.h"
 
+#include <assert.h>
 #include <stdio.h>
 
 #include "cryptfs.h"
 
 const char *BLOCK_PATH = NULL;
+uint32_t BLOCK_SIZE = 0;
 
 void set_device_path(const char *path)
 {
@@ -16,8 +18,22 @@ const char *get_device_path()
     return BLOCK_PATH;
 }
 
+void set_block_size(const uint32_t size)
+{
+    assert(size >= CRYPTFS_BLOCK_SIZE_BYTES);
+    BLOCK_SIZE = size;
+}
+
+uint32_t get_block_size()
+{
+    return BLOCK_SIZE;
+}
+
 int read_blocks(size_t start_block, size_t nb_blocks, void *buffer)
 {
+    assert(BLOCK_PATH != NULL);
+    assert(BLOCK_SIZE != 0);
+
     if (nb_blocks == 0)
         return 0;
     if (buffer == NULL)
@@ -27,7 +43,7 @@ int read_blocks(size_t start_block, size_t nb_blocks, void *buffer)
     if (file == NULL)
         return -1;
 
-    if (fseek(file, start_block * CRYPTFS_BLOCK_SIZE_BYTES, SEEK_SET) != 0)
+    if (fseek(file, start_block * BLOCK_SIZE, SEEK_SET) != 0)
         return -1;
 
     size_t read = 0;
@@ -48,6 +64,9 @@ int read_blocks(size_t start_block, size_t nb_blocks, void *buffer)
 
 int write_blocks(size_t start_block, size_t nb_blocks, void *buffer)
 {
+    assert(BLOCK_PATH != NULL);
+    assert(BLOCK_SIZE != 0);
+
     if (nb_blocks == 0)
         return 0;
     if (buffer == NULL)

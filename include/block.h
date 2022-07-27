@@ -2,8 +2,7 @@
 #define BLOCK_H
 
 #include <stddef.h>
-
-extern char *DEVICE_PATH;
+#include <stdint.h>
 
 /**
  * @brief Set the device path global variable.
@@ -18,6 +17,20 @@ void set_device_path(const char *path);
  * @return The device path global variable.
  */
 const char *get_device_path();
+
+/**
+ * @brief Set the block size global variable.
+ *
+ * @param size The block size.
+ */
+void set_block_size(const uint32_t size);
+
+/**
+ * @brief Get the block size global variable.
+ *
+ * @return The block size global variable.
+ */
+uint32_t get_block_size();
 
 /**
  * @brief Read blocks from the device.
