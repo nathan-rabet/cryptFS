@@ -12,7 +12,7 @@
 #define CRYPTFS_MAGIC 0x63727970746673
 #define CRYPTFS_VERSION 1
 #define CRYPTFS_BLOCK_SIZE_BYTES 512
-#define CRYPTFS_BLOCK_SIZE_BITS (CRYPTFS_BLOCK_SIZE_BYTES / 8)
+#define CRYPTFS_BLOCK_SIZE_BITS (CRYPTFS_BLOCK_SIZE_BYTES * 8)
 
 /**
  * @brief HEADER (block 0) of the filesystem.
@@ -100,7 +100,7 @@ struct CryptFS_FAT
 enum FAT_BLOCK_TYPE
 {
     FAT_BLOCK_END = -2, // End of file.
-    FAT_BLOCK_ERROR = -1, // Error related to FAT. (Not written on any FAT)
+    FAT_BLOCK_ERROR = -1, // Error related to FAT. (Never written in any FAT)
     FAT_BLOCK_FREE = 0, // The block is free.
 };
 

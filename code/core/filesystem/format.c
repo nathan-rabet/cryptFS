@@ -70,8 +70,8 @@ void format_fill_filesystem_struct(struct CryptFS *cfs)
     /// ------------------------------------------------------------
 
     // Write the first FAT (at block 2)
-    cfs->first_fat.entries[0].next_block = FAT_BLOCK_RESERVED; // Header
-    cfs->first_fat.entries[1].next_block = FAT_BLOCK_RESERVED; // Keys storage
+    cfs->first_fat.entries[0].next_block = FAT_BLOCK_END; // Header
+    cfs->first_fat.entries[1].next_block = FAT_BLOCK_END; // Keys storage
     cfs->first_fat.entries[2].next_block = FAT_BLOCK_END; // This FAT
 
     /// ------------------------------------------------------------
