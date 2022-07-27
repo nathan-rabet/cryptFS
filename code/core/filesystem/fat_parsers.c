@@ -1,8 +1,7 @@
-#include "fat.h"
-
 #include <limits.h>
 
 #include "block.h"
+#include "fat.h"
 #include "xalloc.h"
 
 int64_t find_first_free_block(struct CryptFS_FAT *first_fat)
