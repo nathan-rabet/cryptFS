@@ -6,6 +6,7 @@
 #include "cryptfs.h"
 #include "crypto.h"
 #include "errors.h"
+#include "fat.h"
 #include "xalloc.h"
 
 bool is_already_formatted(const char *file_path)
@@ -69,10 +70,9 @@ void format_fill_filesystem_struct(struct CryptFS *cfs)
     /// BLOCK 2 : FAT (File Allocation Table)
     /// ------------------------------------------------------------
 
-    // Write the first FAT (at block 2)
-    cfs->first_fat.entries[0].next_block = FAT_BLOCK_END; // Header
-    cfs->first_fat.entries[1].next_block = FAT_BLOCK_END; // Keys storage
-    cfs->first_fat.entries[2].next_block = FAT_BLOCK_END; // This FAT
+    cfs->first_fat.next_fat_table = FAT_BLOCK_END;
+    for (size_t i = 0; i <= ROOT_DIR_BLOCK; i++)
+        write_fat_offset(&cfs->first_fat, i, FAT_BLOCK_END);
 
     /// ------------------------------------------------------------
     /// BLOCK 3 : ROOT DIRECTORY

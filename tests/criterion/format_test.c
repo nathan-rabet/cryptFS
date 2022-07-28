@@ -15,6 +15,10 @@ Test(is_already_formatted, not_formated, .timeout = 10)
 
 Test(is_already_formatted, formated, .init = cr_redirect_stdout, .timeout = 10)
 {
+    // Set the device (global variable) to the file (used by read/write_blocks)
+    set_device_path("build/format.test.cfs");
+    set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
+
     format_fs("build/format.test.cfs");
     cr_assert(is_already_formatted("build/format.test.cfs"));
 
@@ -28,6 +32,10 @@ Test(is_already_formatted, formated, .init = cr_redirect_stdout, .timeout = 10)
 
 Test(format_fs, integrity, .init = cr_redirect_stdout, .timeout = 10)
 {
+    // Set the device (global variable) to the file (used by read/write_blocks)
+    set_device_path("build/integrity.test.cfs");
+    set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
+
     struct CryptFS *cfs_before = xcalloc(1, sizeof(struct CryptFS));
     struct CryptFS *cfs_after = xcalloc(1, sizeof(struct CryptFS));
 
@@ -39,10 +47,6 @@ Test(format_fs, integrity, .init = cr_redirect_stdout, .timeout = 10)
         error_exit("Impossible to write the filesystem structure on the disk",
                    EXIT_FAILURE);
     fclose(file);
-
-    // Set the device (global variable) to the file (used by read/write_blocks)
-    set_device_path("build/integrity.test.cfs");
-    set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
 
     // Read the the CryptFS
     read_blocks(0, 67, cfs_after);

@@ -16,15 +16,28 @@
 int main(void)
 {
     struct CryptFS *cfs = xcalloc(1, sizeof(struct CryptFS));
-    memset(&cfs->first_fat.entries->next_block, 0xDEAD,
-           NB_FAT_ENTRIES_PER_BLOCK);
 
-    size_t index = 42;
-    cfs->first_fat.entries[index].next_block = FAT_BLOCK_FREE;
+    // Setting the device and block size for read/write operations
+    set_device_path("build/create_fat.second_fat.test.cfs");
+    set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
 
-    int64_t result = find_first_free_block(&cfs->first_fat);
+    format_fs("build/create_fat.second_fat.test.cfs");
 
-    (void)result;
+    FILE *fp = fopen("build/create_fat.second_fat.test.cfs", "r");
+    if (fread(cfs, sizeof(struct CryptFS), 1, fp) != 1)
+        return 1;
+    fclose(fp);
+
+    // Reading the structure from the file
+    int64_t result = create_fat(&cfs->first_fat);
+
+    printf("result = %ld\n", result);
+
+    // Deleting the file
+    if (remove("build/create_fat.second_fat.test.cfs") != 0)
+        return 1;
+
+    free(cfs);
 
     return 0;
 }

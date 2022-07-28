@@ -7,7 +7,7 @@ PROJECT_DIR ?= $(shell pwd)
 include $(PROJECT_DIR)/global.mk
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -Iinclude -g
+CFLAGS = -Wall -Wextra -Werror -Iinclude -g -std=gnu99 -D_ISOC11_SOURCE
 LDFLAGS = -lm -lcrypto -fsanitize=address -fsanitize=undefined -fsanitize=leak
 
 SRC = $(shell find $(SRC_CORE_DIR) -name '*.c')

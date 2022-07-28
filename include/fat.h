@@ -18,11 +18,11 @@ int64_t find_first_free_block(struct CryptFS_FAT *first_fat);
  * @note The function still works if you pass any FAT table as first_fat
  * (not only the first one).
  *
- * @param any_fat A FAT table (can be any FAT table in the FAT linked-list).
+ * @param first_fat A FAT table (can be any FAT table in the FAT linked-list).
  * @return int64_t The block where the new FAT is stored,
  * or FAT_BLOCK_ERROR if an error occurs.
  */
-int64_t create_fat(struct CryptFS_FAT *any_fat);
+int64_t create_fat(struct CryptFS_FAT *first_fat);
 
 /**
  * @brief Write `value` to the FAT table at `offset` index.

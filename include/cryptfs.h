@@ -162,6 +162,10 @@ typedef char f_cont_t; // File content type
 // -----------------------------------------------------------------------------
 // CRYPTFS FILE SYSTEM
 // -----------------------------------------------------------------------------
+#define HEADER_BLOCK 0
+#define KEYS_STORAGE_BLOCK 1
+#define FAT_BLOCK 65
+#define ROOT_DIR_BLOCK 66
 
 struct CryptFS
 {
