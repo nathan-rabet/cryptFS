@@ -1,51 +1,49 @@
 ########################
-### WRAPPER MAKEFILE ###
+###     MAKEFILE     ###
 ########################
 
 PROJECT_DIR ?= $(shell pwd)
 
 include $(PROJECT_DIR)/global.mk
 
-module:
-	$(MAKE) -C $(SRC_MODULE) modules
-	cp $(BUILD_KERNEL)/$(KERNEL_BUILD_COMPILED) ./$(MODULE_FILENAME)
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -Iinclude -g -std=gnu99 -D_ISOC11_SOURCE
+LDFLAGS = -lm -lcrypto -fsanitize=address -fsanitize=undefined -fsanitize=leak
 
-dependencies:
-	bash dependencies.sh
+SRC = $(shell find $(SRC_CORE_DIR) -name '*.c')
+OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(SRC:.c=.o))
 
-vm:
-	$(MAKE) -C $(SRC_VM) vm
+TESTS_SRC = $(shell find $(TESTS_DIR) -name '*.c')
+TESTS_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(TESTS_SRC:.c=.o))
 
-kernel:
-	$(MAKE) -C $(SRC_SYS) kernel
+FORMAT_SRC = $(SRC_CODE_DIR)/formater.c
+FORMAT_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(FORMAT_SRC:.c=.o))
 
-kernel-module:
-	$(MAKE) -C $(SRC_SYS) module
+formater: $(BUILD_DIR)/formater $(OBJ)
 
-image:
-	$(MAKE) -C $(SRC_SYS) image
+$(BUILD_DIR)/formater: $(FORMAT_OBJ) $(OBJ)
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $(BUILD_DIR)/formater
 
-clean-module:
-	rm -rf $(MODULE_FILENAME)
-	$(MAKE) -C $(SRC_MODULE) clean
+$(BUILD_DIR)/%.o: $(PROJECT_DIR)/%.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@
 
-clean-vm:
-	$(MAKE) -C $(SRC_VM) clean
+tests_suite: $(BUILD_DIR)/tests_suite
+	
+$(BUILD_DIR)/tests_suite: LDFLAGS += -lcriterion
+$(BUILD_DIR)/tests_suite: $(TESTS_OBJ) $(OBJ)
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $(BUILD_DIR)/tests_suite
 
-clean-sytem-kernel-module:
-	$(MAKE) -C $(SRC_SYS) clean-module
+test_main: $(BUILD_DIR)/test_main
+	
 
-clean-system-image:
-	$(MAKE) -C $(SRC_SYS) clean-image
+$(BUILD_DIR)/test_main: $(OBJ) $(BUILD_DIR)/tests/test_main.o
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)/test_main $^ $(LDFLAGS)
 
-clean-system-all:
-	$(MAKE) -C $(SRC_SYS) clean-all
+check: tests_suite
+	$(BUILD_DIR)/tests_suite
 
-clean-all-yes-i-am-sure:
-	@echo $(call yellowtext,"Do you REALLY want to delete the $(BUILD) directory?")
-	@echo $(call yellowtext,"Press [Enter] to continue or Ctrl+C to abort.")
-	@read ack
-	rm -rf $(BUILD) $(MODULE_FILENAME)
+clean:
+	rm -rf $(BUILD_DIR)
 
-
-.PHONY: module vm kernel kernel-module image dependencies clean-all clean-vm clean-vm-all clean-module clean-sytem-kernel-module clean-system-kernel clean-system-image clean-system-all
+.PHONY: clean

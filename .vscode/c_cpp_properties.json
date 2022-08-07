@@ -4,16 +4,25 @@
             "name": "Linux - GCC C99",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/build/system/kernel/linux-5.13.1/include"
+                "${workspaceFolder}/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c99",
-            "intelliSenseMode": "linux-gcc-x64",
-            "compilerArgs": [
-                "-Werror -Wall -pedantic -std=c99"
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "Linux - GCC GNU",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include"
             ],
-            "configurationProvider": "ms-vscode.makefile-tools"
+            "defines": [
+                "_ISOC11_SOURCE"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu99",
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ],
     "version": 4
