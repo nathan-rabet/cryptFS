@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 void *xmalloc(size_t nmemb, size_t size)
 {
@@ -25,6 +26,13 @@ void *xaligned_alloc(size_t alignment, size_t nmemb, size_t size)
         err(1, "xmalloc: malloc failed, size: %zu", total_size);
 
     return res;
+}
+
+void *xaligned_calloc(size_t alignment, size_t nmemb, size_t size)
+{
+    void *ptr = xaligned_alloc(alignment, nmemb, size);
+    memset(ptr, 0, nmemb * size);
+    return ptr;
 }
 
 void *xcalloc(size_t nmemb, size_t size)

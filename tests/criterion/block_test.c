@@ -26,16 +26,16 @@ Test(block, read_write, .init = cr_redirect_stdout, .timeout = 10)
 
     format_fs("build/block_read_write.test.cfs");
 
-    uint8_t *buffer_before = xmalloc(1, CRYPTFS_BLOCK_SIZE_BYTES);
-    uint8_t *buffer_after = xcalloc(1, CRYPTFS_BLOCK_SIZE_BYTES);
+    uint8_t *buffer_before = xmalloc(1, get_block_size());
+    uint8_t *buffer_after = xcalloc(1, get_block_size());
 
-    cr_assert(RAND_bytes(buffer_before, CRYPTFS_BLOCK_SIZE_BYTES) == 1);
+    cr_assert(RAND_bytes(buffer_before, get_block_size()) == 1);
 
     int ret = write_blocks(0, 1, buffer_before);
     cr_assert_eq(ret, 0);
     ret = read_blocks(0, 1, buffer_after);
     cr_assert_eq(ret, 0);
-    cr_assert_arr_eq(buffer_before, buffer_after, CRYPTFS_BLOCK_SIZE_BYTES);
+    cr_assert_arr_eq(buffer_before, buffer_after, get_block_size());
 
     // Remove the file
     if (remove("build/block_read_write.test.cfs") != 0)

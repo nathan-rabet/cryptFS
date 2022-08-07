@@ -38,7 +38,7 @@ uint32_t get_block_size();
  * @param start_block The first block to read.
  * @param nb_blocks The number of blocks to read.
  * @param buffer The buffer to fill with the blocks.
- * (Must be allocated with at least CRYPTFS_BLOCK_SIZE_BYTES * nb_blocks bytes)
+ * (Must be allocated with at least get_block_size() * nb_blocks bytes)
  *
  * @return 0 on success, -1 on error.
  */

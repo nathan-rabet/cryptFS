@@ -25,6 +25,16 @@ void *xmalloc(size_t nmemb, size_t size);
 void *xaligned_alloc(size_t alignment, size_t nmemb, size_t size);
 
 /**
+ * @brief Like xaligned_alloc, but also initializes the memory to 0
+ *
+ * @param alignment Alignment of the allocation
+ * @param nmemb Number of elements to allocate
+ * @param size Size of each element
+ * @return void* Pointer to the allocated memory (zeroed)
+ */
+void *xaligned_calloc(size_t alignment, size_t nmemb, size_t size);
+
+/**
  * @brief Calloc wrapper that exits the program if the allocation fails
  * or if nmemb * size overflows
  *

@@ -84,22 +84,6 @@ void format_fill_filesystem_struct(struct CryptFS *cfs)
 
 void format_fs(const char *path)
 {
-    // Check if the file is already formatted
-    if (is_already_formatted(path))
-    {
-        // Ask the user if he wants to overwrite the file
-        printf("The file is already formatted. Do you want to overwrite it? "
-               "(y/n) ");
-        char answer = getchar();
-        if (answer != 'y' && answer != 'Y')
-        {
-            printf("Aborting...\n");
-            return;
-        }
-        else
-            printf("Overwriting...\n");
-    }
-
     struct CryptFS *cfs = xcalloc(1, sizeof(struct CryptFS));
 
     format_fill_filesystem_struct(cfs);

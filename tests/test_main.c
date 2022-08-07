@@ -15,29 +15,37 @@
 
 int main(void)
 {
-    struct CryptFS *cfs = xcalloc(1, sizeof(struct CryptFS));
+    remove("find_first_free_block.on_second_fat.test.cfs");
 
-    // Setting the device and block size for read/write operations
-    set_device_path("build/create_fat.second_fat.test.cfs");
+    set_device_path(
+        "find_first_free_block.on_second_fat_not_contigious.test.cfs");
     set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
 
-    format_fs("build/create_fat.second_fat.test.cfs");
+    format_fs("find_first_free_block.on_second_fat_not_contigious.test.cfs");
 
-    FILE *fp = fopen("build/create_fat.second_fat.test.cfs", "r");
-    if (fread(cfs, sizeof(struct CryptFS), 1, fp) != 1)
-        return 1;
-    fclose(fp);
+    struct CryptFS_FAT *first_fat = xaligned_calloc(
+        sizeof(struct CryptFS_FAT), 1, sizeof(struct CryptFS_FAT));
+
+    struct CryptFS_FAT *second_fat = xaligned_calloc(
+        sizeof(struct CryptFS_FAT), 1, sizeof(struct CryptFS_FAT));
+
+    // Filling first FAT
+    memset(first_fat->entries, '1',
+           NB_FAT_ENTRIES_PER_BLOCK * sizeof(struct CryptFS_FAT_Entry));
+    first_fat->next_fat_table = ROOT_DIR_BLOCK + 2;
+
+    // Filling second FAT
+    memset(second_fat->entries, '2',
+           (NB_FAT_ENTRIES_PER_BLOCK - 1) * sizeof(struct CryptFS_FAT_Entry));
+    second_fat->next_fat_table = FAT_BLOCK_END;
+
+    // Writing the FATs to the image
+    write_blocks(FIRST_FAT_BLOCK, 1, first_fat);
+    write_blocks(ROOT_DIR_BLOCK + 2, 1, second_fat);
 
     // Reading the structure from the file
-    int64_t result = create_fat(&cfs->first_fat);
-
+    int64_t result = find_first_free_block(first_fat);
     printf("result = %ld\n", result);
-
-    // Deleting the file
-    if (remove("build/create_fat.second_fat.test.cfs") != 0)
-        return 1;
-
-    free(cfs);
 
     return 0;
 }
