@@ -8,7 +8,7 @@ include $(PROJECT_DIR)/global.mk
 
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -Iinclude -g -std=gnu99 -D_ISOC11_SOURCE
-LDFLAGS = -lm -lcrypto -fsanitize=address -fsanitize=undefined -fsanitize=leak
+LDFLAGS = -lm -lcrypto -fsanitize=address -fsanitize=undefined
 
 SRC = $(shell find $(SRC_CORE_DIR) -name '*.c')
 OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(SRC:.c=.o))
@@ -22,17 +22,17 @@ FORMAT_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(FORMAT_SRC:.c=.o))
 formater: $(BUILD_DIR)/formater $(OBJ)
 
 $(BUILD_DIR)/formater: $(FORMAT_OBJ) $(OBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $(BUILD_DIR)/formater
+	$(CC) $(CFLAGS) $^ -o $(BUILD_DIR)/formater $(LDFLAGS)
 
 $(BUILD_DIR)/%.o: $(PROJECT_DIR)/%.c
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ $(LDFLAGS)
 
 tests_suite: $(BUILD_DIR)/tests_suite
 	
 $(BUILD_DIR)/tests_suite: LDFLAGS += -lcriterion
 $(BUILD_DIR)/tests_suite: $(TESTS_OBJ) $(OBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $(BUILD_DIR)/tests_suite
+	$(CC) $(CFLAGS) $^ -o $(BUILD_DIR)/tests_suite $(LDFLAGS)
 
 test_main: $(BUILD_DIR)/test_main
 	

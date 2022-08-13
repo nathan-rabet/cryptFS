@@ -4,8 +4,8 @@
 
 #include "block.h"
 #include "cryptfs.h"
-#include "errors.h"
 #include "format.h"
+#include "print.h"
 #include "xalloc.h"
 
 Test(is_already_formatted, not_formated, .timeout = 10)
@@ -44,7 +44,7 @@ Test(format_fs, integrity, .init = cr_redirect_stdout, .timeout = 10)
     // Write the CryptFS to the file
     FILE *file = fopen("build/integrity.test.cfs", "w");
     if (file == NULL || fwrite(cfs_before, sizeof(*cfs_before), 1, file) != 1)
-        error_exit("Impossible to write the filesystem structure on the disk",
+        error_exit("Impossible to write the filesystem structure on the disk\n",
                    EXIT_FAILURE);
     fclose(file);
 

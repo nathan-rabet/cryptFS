@@ -8,9 +8,9 @@
 #include "block.h"
 #include "cryptfs.h"
 #include "crypto.h"
-#include "errors.h"
 #include "fat.h"
 #include "format.h"
+#include "print.h"
 #include "xalloc.h"
 
 int main(void)
@@ -45,7 +45,7 @@ int main(void)
 
     // Reading the structure from the file
     int64_t result = find_first_free_block(first_fat);
-    printf("result = %ld\n", result);
+    print_info("result = %ld\n", result);
 
     return 0;
 }

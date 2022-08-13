@@ -1,12 +1,12 @@
 #include "format.h"
 
-#include <openssl/rsa.h>
+#include <openssl/evp.h>
 
 #include "block.h"
 #include "cryptfs.h"
 #include "crypto.h"
-#include "errors.h"
 #include "fat.h"
+#include "print.h"
 #include "xalloc.h"
 
 bool is_already_formatted(const char *file_path)
@@ -18,6 +18,8 @@ bool is_already_formatted(const char *file_path)
     struct CryptFS_Header header = { 0 };
 
     fread(&header, sizeof(header), 1, file);
+
+    fclose(file);
 
     // Check if the magic number is correct
     if (header.magic != CRYPTFS_MAGIC)
@@ -32,7 +34,7 @@ bool is_already_formatted(const char *file_path)
     return true;
 }
 
-void format_fill_filesystem_struct(struct CryptFS *cfs)
+void format_fill_filesystem_struct(struct CryptFS *cfs, char *rsa_passphrase)
 {
     /// ------------------------------------------------------------
     /// BLOCK 0 : HEADER
@@ -51,20 +53,20 @@ void format_fill_filesystem_struct(struct CryptFS *cfs)
     /// ------------------------------------------------------------
 
     // Generate AES + RSA keys
-    unsigned char aes_key[RSA_KEY_SIZE_BYTES] = { 0 };
-    RSA *keypair = RSA_new();
-    generate_keys(aes_key, keypair);
+    unsigned char *aes_key = generate_aes_key();
+    EVP_PKEY *rsa_key = generate_rsa_keypair();
 
     // Store the RSA modulus and the RSA public exponent in the header
-    store_keys_in_keys_storage(cfs->keys_storage, keypair, aes_key);
+    store_keys_in_keys_storage(cfs->keys_storage, rsa_key, aes_key);
 
     // Get user directory path
     char *user_dir_path = getenv("HOME");
     if (!user_dir_path)
-        error_exit("Impossible to get the user directory path", EXIT_FAILURE);
+        internal_error_exit("Impossible to get the user directory path\n",
+                            EXIT_FAILURE);
 
     // Write the RSA public and private keys in the user directory
-    write_rsa_keys_on_disk(keypair, user_dir_path);
+    write_rsa_keys_on_disk(rsa_key, user_dir_path, rsa_passphrase);
 
     /// ------------------------------------------------------------
     /// BLOCK 2 : FAT (File Allocation Table)
@@ -79,22 +81,28 @@ void format_fill_filesystem_struct(struct CryptFS *cfs)
     /// ------------------------------------------------------------
     //// Noting to add
 
-    RSA_free(keypair);
+    free(aes_key);
+    EVP_PKEY_free(rsa_key);
 }
 
-void format_fs(const char *path)
+void format_fs(const char *path, char *rsa_passphrase)
 {
     struct CryptFS *cfs = xcalloc(1, sizeof(struct CryptFS));
 
-    format_fill_filesystem_struct(cfs);
+    set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
+    set_device_path(path);
+
+    format_fill_filesystem_struct(cfs, rsa_passphrase);
 
     FILE *file = fopen(path, "w+");
     if (file == NULL)
-        error_exit("Impossible to open the file", EXIT_FAILURE);
+        error_exit("Impossible to open the fill\n", EXIT_FAILURE);
 
     // Write the filesystem structure on the disk
-    printf("Writing the filesystem structure on the disk...\n");
-    fwrite(cfs, sizeof(*cfs), 1, file);
+    print_info("Writing the filesystem structure on the disk...\n");
+    if (fwrite(cfs, sizeof(*cfs), 1, file) != 1)
+        error_exit("Impossible to write the filesystem structure\n",
+                   EXIT_FAILURE);
 
     free(cfs);
 
