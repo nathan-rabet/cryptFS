@@ -6,9 +6,10 @@ PROJECT_DIR ?= $(shell pwd)
 
 include $(PROJECT_DIR)/global.mk
 
+FSANITIZE = -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=null -fsanitize=signed-integer-overflow
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -Iinclude -g -std=gnu99 -D_ISOC11_SOURCE
-LDFLAGS = -lm -lcrypto -fsanitize=address -fsanitize=undefined
+LDFLAGS = -lm -lcrypto $(FSANITIZE)
 
 SRC = $(shell find $(SRC_CORE_DIR) -name '*.c')
 OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(SRC:.c=.o))

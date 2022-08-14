@@ -24,7 +24,7 @@ Test(block, read_write, .init = cr_redirect_stdout, .timeout = 10)
     set_device_path("build/block_read_write.test.cfs");
     set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
 
-    format_fs("build/block_read_write.test.cfs");
+    format_fs("build/block_read_write.test.cfs", NULL);
 
     uint8_t *buffer_before = xmalloc(1, get_block_size());
     uint8_t *buffer_after = xcalloc(1, get_block_size());

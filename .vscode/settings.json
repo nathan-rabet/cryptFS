@@ -31,6 +31,7 @@
         "pem.h": "c",
         "evp.h": "c",
         "termios.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "array": "c"
     }
 }

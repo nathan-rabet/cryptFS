@@ -2,11 +2,38 @@
 #define CRYPTO_H
 
 #include <openssl/aes.h>
-#include <openssl/rsa.h>
+#include <openssl/evp.h>
 
 #include "cryptfs.h"
 
 #define RSA_EXPONENT RSA_F4
+
+/**
+ * @brief Encrypts `data` of size `data_size` with `rsa_key` public key.
+ *
+ * @param rsa_key The RSA (public) key to use for encryption.
+ * @param data The data to encrypt.
+ * @param data_size The size of the data to encrypt.
+ * @param encrypted_data_size The size of the encrypted data (returned).
+ * @return unsigned char* The encrypted data.
+ */
+unsigned char *rsa_encrypt_data(EVP_PKEY *rsa_key, const unsigned char *data,
+                                size_t data_size, size_t *encrypted_data_size);
+
+/**
+ * @brief Decrypts `encrypted_data` of size `encrypted_data_size` with
+ * `rsa_key` private key.
+ *
+ * @param rsa_key The RSA (private) key to use for decryption.
+ * @param encrypted_data The data to decrypt.
+ * @param encrypted_data_size The size of the data to decrypt.
+ * @param decrypted_data_size The size of the decrypted data (returned).
+ * @return unsigned char* The decrypted data.
+ */
+unsigned char *rsa_decrypt_data(EVP_PKEY *rsa_key,
+                                const unsigned char *encrypted_data,
+                                size_t encrypted_data_size,
+                                size_t *decrypted_data_size);
 
 /**
  * @brief Generates a random AES key.

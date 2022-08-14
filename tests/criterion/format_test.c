@@ -19,7 +19,7 @@ Test(is_already_formatted, formated, .init = cr_redirect_stdout, .timeout = 10)
     set_device_path("build/format.test.cfs");
     set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
 
-    format_fs("build/format.test.cfs");
+    format_fs("build/format.test.cfs", NULL);
     cr_assert(is_already_formatted("build/format.test.cfs"));
 
     // Detele the file
@@ -39,7 +39,7 @@ Test(format_fs, integrity, .init = cr_redirect_stdout, .timeout = 10)
     struct CryptFS *cfs_before = xcalloc(1, sizeof(struct CryptFS));
     struct CryptFS *cfs_after = xcalloc(1, sizeof(struct CryptFS));
 
-    format_fill_filesystem_struct(cfs_before);
+    format_fill_filesystem_struct(cfs_before, NULL);
 
     // Write the CryptFS to the file
     FILE *file = fopen("build/integrity.test.cfs", "w");
