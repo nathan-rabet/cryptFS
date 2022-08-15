@@ -107,14 +107,21 @@ int read_blocks_with_decryption(unsigned char *aes_key, size_t start_block,
     int read_blocks_res = read_blocks(start_block, nb_blocks, encrypted_buffer);
 
     if (read_blocks_res == -1)
+    {
+        free(encrypted_buffer);
         return -1;
+    }
 
     size_t useless_size = 0;
     unsigned char *decrypted_buffer = aes_decrypt_data(
         aes_key, encrypted_buffer, nb_blocks * get_block_size(), &useless_size);
 
     if (decrypted_buffer == NULL)
+    {
+        free(encrypted_buffer);
+        free(decrypted_buffer);
         return -1;
+    }
 
     memcpy(buffer, decrypted_buffer, nb_blocks * get_block_size());
     free(encrypted_buffer);

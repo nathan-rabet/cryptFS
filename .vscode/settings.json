@@ -34,6 +34,7 @@
         "unistd.h": "c",
         "array": "c",
         "assert.h": "c",
-        "cerrno": "c"
+        "cerrno": "c",
+        "passphrase.h": "c"
     }
 }

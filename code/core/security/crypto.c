@@ -78,13 +78,8 @@ unsigned char *aes_encrypt_data(unsigned char *aes_key,
                             EXIT_FAILURE);
     if (EVP_CIPHER_CTX_set_padding(ctx, 0) != 1)
         internal_error_exit("Failed to disable padding\n", EXIT_FAILURE);
-    if (EVP_EncryptUpdate(ctx, NULL, (int *)encrypted_data_size, data,
-                          data_size)
-        != 1)
-        internal_error_exit(
-            "Failed to determine the size of the output buffer\n",
-            EXIT_FAILURE);
-    unsigned char *encrypted_data = xcalloc(1, *encrypted_data_size);
+
+    unsigned char *encrypted_data = xcalloc(1, data_size + AES_BLOCK_SIZE);
     if (EVP_EncryptUpdate(ctx, encrypted_data, (int *)encrypted_data_size, data,
                           data_size)
         != 1)
@@ -109,13 +104,7 @@ unsigned char *aes_decrypt_data(unsigned char *aes_key,
                             EXIT_FAILURE);
     if (EVP_CIPHER_CTX_set_padding(ctx, 0) != 1)
         internal_error_exit("Failed to disable padding\n", EXIT_FAILURE);
-    if (EVP_DecryptUpdate(ctx, NULL, (int *)encrypted_data_size, encrypted_data,
-                          (int)encrypted_data_size)
-        != 1)
-        internal_error_exit(
-            "Failed to determine the size of the output buffer\n",
-            EXIT_FAILURE);
-    unsigned char *decrypted_data = xcalloc(1, *decrypted_data_size);
+    unsigned char *decrypted_data = xcalloc(1, encrypted_data_size);
     if (EVP_DecryptUpdate(ctx, decrypted_data, (int *)decrypted_data_size,
                           encrypted_data, encrypted_data_size)
         != 1)
