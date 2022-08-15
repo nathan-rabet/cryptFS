@@ -1,9 +1,12 @@
 #include <assert.h>
+#include <errno.h>
 #include <math.h>
 #include <openssl/evp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "block.h"
 #include "cryptfs.h"
@@ -15,24 +18,23 @@
 
 int main(void)
 {
-    struct CryptFS_Key *keys_storage = xcalloc(1, sizeof(struct CryptFS_Key));
+    remove("crypto_disk__load_rsa_keypair_from_disk");
+    int dir_res = mkdir("crypto_disk__load_rsa_keypair_from_disk", 0755);
+    if (dir_res != 0 && errno != EEXIST)
+        assert(false);
 
     EVP_PKEY *rsa_keypair = generate_rsa_keypair();
-    EVP_PKEY *rsa_keypair_different = generate_rsa_keypair();
-
-    unsigned char *aes_key = generate_aes_key();
-
-    store_keys_in_keys_storage(keys_storage, rsa_keypair, aes_key);
-
-    if (find_rsa_matching_key(rsa_keypair_different, keys_storage) == -1)
-        printf("find_rsa_matching_key: OK\n");
+    write_rsa_keys_on_disk(rsa_keypair,
+                           "crypto_disk__load_rsa_keypair_from_disk", NULL);
+    EVP_PKEY *rsa_keypair_loaded = load_rsa_keypair_from_disk(
+        "crypto_disk__load_rsa_keypair_from_disk/.cryptfs/public.pem",
+        "crypto_disk__load_rsa_keypair_from_disk/.cryptfs/private.pem", NULL);
+    if (EVP_PKEY_eq(rsa_keypair, rsa_keypair_loaded) == 1)
+        printf("Keys are equal\n");
     else
-        printf("find_rsa_matching_key: FAIL\n");
-
-    free(aes_key);
+        printf("Keys are different\n");
     EVP_PKEY_free(rsa_keypair);
-    EVP_PKEY_free(rsa_keypair_different);
-    free(keys_storage);
+    EVP_PKEY_free(rsa_keypair_loaded);
 
     return 0;
 }

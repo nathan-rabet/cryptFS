@@ -36,6 +36,34 @@ unsigned char *rsa_decrypt_data(EVP_PKEY *rsa_key,
                                 size_t *decrypted_data_size);
 
 /**
+ * @brief Encrypts `data` of size `data_size` with `aes_key` key.
+ *
+ * @param aes_key The AES key to use for encryption.
+ * @param data The data to encrypt.
+ * @param data_size The size of the data to encrypt.
+ * @param encrypted_data_size The size of the encrypted data (returned).
+ * @return unsigned char* The encrypted data.
+ */
+unsigned char *aes_encrypt_data(unsigned char *aes_key,
+                                const unsigned char *data, size_t data_size,
+                                size_t *encrypted_data_size);
+
+/**
+ * @brief Decrypts `encrypted_data` of size `encrypted_data_size` with
+ * `aes_key` key.
+ *
+ * @param aes_key The AES key to use for decryption.
+ * @param encrypted_data The data to decrypt.
+ * @param encrypted_data_size The size of the data to decrypt.
+ * @param decrypted_data_size The size of the decrypted data (returned).
+ * @return unsigned char* The decrypted data.
+ */
+unsigned char *aes_decrypt_data(unsigned char *aes_key,
+                                const unsigned char *encrypted_data,
+                                size_t encrypted_data_size,
+                                size_t *decrypted_data_size);
+
+/**
  * @brief Generates a random AES key.
  *
  * @return unsigned char* The generated AES key.
@@ -80,5 +108,18 @@ void write_rsa_keys_on_disk(EVP_PKEY *rsa_keypair, const char *path_to_write,
  */
 int8_t find_rsa_matching_key(EVP_PKEY *rsa_private,
                              struct CryptFS_Key *keys_storage);
+
+/**
+ * @brief Loads the RSA private and public keys from the given file.
+ *
+ * @param public_key_path The path to the public key file.
+ * @param private_key_path The path to the private key file.
+ * @param passphrase The passphrase used to encrypt the keys,
+ * NULL if no passphrase is used.
+ * @return EVP_PKEY* The loaded RSA keypair.
+ */
+EVP_PKEY *load_rsa_keypair_from_disk(const char *public_key_path,
+                                     const char *private_key_path,
+                                     char *passphrase);
 
 #endif /* CRYPTO_H */

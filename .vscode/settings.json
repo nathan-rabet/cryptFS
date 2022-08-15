@@ -32,6 +32,8 @@
         "evp.h": "c",
         "termios.h": "c",
         "unistd.h": "c",
-        "array": "c"
+        "array": "c",
+        "assert.h": "c",
+        "cerrno": "c"
     }
 }

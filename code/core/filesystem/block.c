@@ -2,8 +2,11 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "cryptfs.h"
+#include "crypto.h"
+#include "xalloc.h"
 
 const char *BLOCK_PATH = NULL;
 uint32_t BLOCK_SIZE = 0;
@@ -95,4 +98,40 @@ int write_blocks(size_t start_block, size_t nb_blocks, void *buffer)
         return -1;
 
     return 0;
+}
+
+int read_blocks_with_decryption(unsigned char *aes_key, size_t start_block,
+                                size_t nb_blocks, void *buffer)
+{
+    unsigned char *encrypted_buffer = xmalloc(nb_blocks, get_block_size());
+    int read_blocks_res = read_blocks(start_block, nb_blocks, encrypted_buffer);
+
+    if (read_blocks_res == -1)
+        return -1;
+
+    size_t useless_size = 0;
+    unsigned char *decrypted_buffer = aes_decrypt_data(
+        aes_key, encrypted_buffer, nb_blocks * get_block_size(), &useless_size);
+
+    if (decrypted_buffer == NULL)
+        return -1;
+
+    memcpy(buffer, decrypted_buffer, nb_blocks * get_block_size());
+    free(encrypted_buffer);
+    free(decrypted_buffer);
+    return 0;
+}
+
+int write_blocks_with_encryption(unsigned char *aes_key, size_t start_block,
+                                 size_t nb_blocks, void *buffer)
+{
+    size_t useless_size = 0;
+    unsigned char *encrypted_buffer = aes_encrypt_data(
+        aes_key, buffer, nb_blocks * get_block_size(), &useless_size);
+    if (encrypted_buffer == NULL)
+        return -1;
+    int write_blocks_res =
+        write_blocks(start_block, nb_blocks, encrypted_buffer);
+    free(encrypted_buffer);
+    return write_blocks_res;
 }
