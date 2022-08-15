@@ -52,6 +52,15 @@ void error_exit(const char *msg, int error_code, ...)
     exit(error_code);
 }
 
+void print_error(const char *msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    fprintf(stderr, RED_STR("[CRYPTFS ERROR] : "));
+    fprintf(stderr, msg, args);
+    va_end(args);
+}
+
 void print_warning(const char *msg, ...)
 {
     va_list args;
