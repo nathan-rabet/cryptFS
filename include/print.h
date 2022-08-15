@@ -19,6 +19,13 @@ void internal_error_exit(const char *msg, int error_code, ...);
 void error_exit(const char *msg, int error_code, ...);
 
 /**
+ * @brief Prints an error message on stderr.
+ *
+ * @param msg The error message to print.
+ */
+void print_error(const char *msg, ...);
+
+/**
  * @brief Prints a warning message on stderr.
  *
  * @param msg The warning message to print.
