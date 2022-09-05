@@ -1,51 +1,46 @@
 #include <assert.h>
+#include <errno.h>
 #include <math.h>
-#include <openssl/rsa.h>
+#include <openssl/evp.h>
+#include <openssl/rand.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "block.h"
 #include "cryptfs.h"
 #include "crypto.h"
-#include "errors.h"
 #include "fat.h"
 #include "format.h"
+#include "print.h"
 #include "xalloc.h"
 
 int main(void)
 {
-    remove("find_first_free_block.on_second_fat.test.cfs");
-
-    set_device_path(
-        "find_first_free_block.on_second_fat_not_contigious.test.cfs");
+    set_device_path("block_read_write_with_encryption.test.cfs");
     set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
 
-    format_fs("find_first_free_block.on_second_fat_not_contigious.test.cfs");
+    format_fs("block_read_write_with_encryption.test.cfs", NULL);
 
-    struct CryptFS_FAT *first_fat = xaligned_calloc(
-        sizeof(struct CryptFS_FAT), 1, sizeof(struct CryptFS_FAT));
+    unsigned char *aes_key = generate_aes_key();
 
-    struct CryptFS_FAT *second_fat = xaligned_calloc(
-        sizeof(struct CryptFS_FAT), 1, sizeof(struct CryptFS_FAT));
+    unsigned char *buffer_before_encryption = xcalloc(1, get_block_size() + 1);
+    unsigned char *buffer_after_decryption = xcalloc(1, get_block_size() + 1);
 
-    // Filling first FAT
-    memset(first_fat->entries, '1',
-           NB_FAT_ENTRIES_PER_BLOCK * sizeof(struct CryptFS_FAT_Entry));
-    first_fat->next_fat_table = ROOT_DIR_BLOCK + 2;
+    assert(RAND_bytes(buffer_before_encryption, get_block_size()));
 
-    // Filling second FAT
-    memset(second_fat->entries, '2',
-           (NB_FAT_ENTRIES_PER_BLOCK - 1) * sizeof(struct CryptFS_FAT_Entry));
-    second_fat->next_fat_table = FAT_BLOCK_END;
-
-    // Writing the FATs to the image
-    write_blocks(FIRST_FAT_BLOCK, 1, first_fat);
-    write_blocks(ROOT_DIR_BLOCK + 2, 1, second_fat);
-
-    // Reading the structure from the file
-    int64_t result = find_first_free_block(first_fat);
-    printf("result = %ld\n", result);
+    int ret =
+        write_blocks_with_encryption(aes_key, 0, 1, buffer_before_encryption);
+    assert(ret == 0);
+    ret = read_blocks_with_decryption(aes_key, 0, 1, buffer_after_decryption);
+    assert(ret == 0);
+    // cr_assert_arr_eq(buffer_before_encryption, buffer_after_decryption,
+    //                  get_block_size());
+    free(aes_key);
+    free(buffer_before_encryption);
+    free(buffer_after_decryption);
 
     return 0;
 }

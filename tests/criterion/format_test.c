@@ -4,8 +4,8 @@
 
 #include "block.h"
 #include "cryptfs.h"
-#include "errors.h"
 #include "format.h"
+#include "print.h"
 #include "xalloc.h"
 
 Test(is_already_formatted, not_formated, .timeout = 10)
@@ -19,7 +19,7 @@ Test(is_already_formatted, formated, .init = cr_redirect_stdout, .timeout = 10)
     set_device_path("build/format.test.cfs");
     set_block_size(CRYPTFS_BLOCK_SIZE_BYTES);
 
-    format_fs("build/format.test.cfs");
+    format_fs("build/format.test.cfs", NULL);
     cr_assert(is_already_formatted("build/format.test.cfs"));
 
     // Detele the file
@@ -39,12 +39,12 @@ Test(format_fs, integrity, .init = cr_redirect_stdout, .timeout = 10)
     struct CryptFS *cfs_before = xcalloc(1, sizeof(struct CryptFS));
     struct CryptFS *cfs_after = xcalloc(1, sizeof(struct CryptFS));
 
-    format_fill_filesystem_struct(cfs_before);
+    format_fill_filesystem_struct(cfs_before, NULL);
 
     // Write the CryptFS to the file
     FILE *file = fopen("build/integrity.test.cfs", "w");
     if (file == NULL || fwrite(cfs_before, sizeof(*cfs_before), 1, file) != 1)
-        error_exit("Impossible to write the filesystem structure on the disk",
+        error_exit("Impossible to write the filesystem structure on the disk\n",
                    EXIT_FAILURE);
     fclose(file);
 

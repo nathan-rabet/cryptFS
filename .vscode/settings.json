@@ -15,7 +15,7 @@
         "aes.h": "c",
         "block.h": "c",
         "stdio.h": "c",
-        "errors.h": "c",
+        "print.h": "c",
         "error.h": "c",
         "cstdlib": "c",
         "crypto.h": "c",
@@ -24,6 +24,17 @@
         "limits.h": "c",
         "stdlib.h": "c",
         "malloc.h": "c",
-        "functional": "c"
+        "functional": "c",
+        "stat.h": "c",
+        "*.tcc": "c",
+        "exception": "c",
+        "pem.h": "c",
+        "evp.h": "c",
+        "termios.h": "c",
+        "unistd.h": "c",
+        "array": "c",
+        "assert.h": "c",
+        "cerrno": "c",
+        "passphrase.h": "c"
     }
 }

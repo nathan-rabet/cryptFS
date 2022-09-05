@@ -1,5 +1,5 @@
 #include "cryptfs.h"
-#include "errors.h"
+#include "print.h"
 
 #define STATIC_ASSERT(X)                                                       \
     ({                                                                         \
