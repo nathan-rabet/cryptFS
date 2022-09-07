@@ -26,5 +26,9 @@ jobs:
           sudo cp -r /tmp/criterion/criterion-v2.3.3/lib/* /usr/lib &&
           sudo cp -r /tmp/criterion/criterion-v2.3.3/include/* /usr/local/include
 
+      - name: Installing openssl libraries
+        run:
+          sudo apt-get install libssl-dev
+
       - name: make check
         run: make check
