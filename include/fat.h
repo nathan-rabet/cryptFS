@@ -22,7 +22,7 @@ int64_t find_first_free_block(struct CryptFS_FAT *first_fat);
  * @return int64_t The block where the new FAT is stored,
  * or FAT_BLOCK_ERROR if an error occurs.
  */
-int64_t create_fat(struct CryptFS_FAT *first_fat);
+int64_t create_fat(struct CryptFS_FAT *any_fat);
 
 /**
  * @brief Write `value` to the FAT table at `offset` index.

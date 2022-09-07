@@ -25,10 +25,10 @@ int64_t find_first_free_block(struct CryptFS_FAT *first_fat)
     return FAT_BLOCK_ERROR;
 }
 
-int64_t create_fat(struct CryptFS_FAT *first_fat)
+int64_t create_fat(struct CryptFS_FAT *any_fat)
 {
     // Find a free block in the disk.
-    int64_t created_fat_block = find_first_free_block(first_fat);
+    int64_t created_fat_block = find_first_free_block(any_fat);
     if (created_fat_block == FAT_BLOCK_ERROR)
         return FAT_BLOCK_ERROR;
 
@@ -41,12 +41,12 @@ int64_t create_fat(struct CryptFS_FAT *first_fat)
     // Save the first FAT (for `write_fat_offset()`)
     struct CryptFS_FAT *first_fat_cpy =
         memcpy(xaligned_alloc(sizeof(struct CryptFS_FAT), 1, get_block_size()),
-               first_fat, get_block_size());
+               any_fat, get_block_size());
     if (first_fat_cpy == NULL)
         return FAT_BLOCK_ERROR;
 
     // Find the last FAT in the FAT linked-list.
-    struct CryptFS_FAT *last_fat = first_fat;
+    struct CryptFS_FAT *last_fat = any_fat;
     while (last_fat->next_fat_table != (uint64_t)FAT_BLOCK_END)
         if (read_blocks(last_fat->next_fat_table, 1, last_fat) != 0)
             return FAT_BLOCK_ERROR;
