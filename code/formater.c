@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         break;
 
     default:
-        printf("Usage: %s <file>\n", argv[0]);
+        printf("Usage: %s <file> [RSA key passphrase]\n", argv[0]);
         return 1;
     }
 
