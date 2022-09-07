@@ -28,8 +28,8 @@ EVP_PKEY *load_rsa_keypair_from_disk(const char *public_key_path,
         == NULL)
         internal_error_exit("Failed to load private key\n", EXIT_FAILURE);
 
-    close(public_key_file);
-    close(private_key_file);
+    fclose(public_key_file);
+    fclose(private_key_file);
 
     return rsa_keypair;
 }
