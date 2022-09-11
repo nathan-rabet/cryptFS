@@ -33,4 +33,12 @@ void format_fill_filesystem_struct(struct CryptFS *cfs, char *rsa_passphrase);
  */
 void format_fs(const char *path, char *rsa_passphrase);
 
+/**
+ * @brief Check if the given file exist 
+ * 
+ * @param file_path The path to the file to check. 
+ * @return 0 if the file does not exist.
+ * @return 1 if the file exist.
+ */
+int file_exist(const char *file_path);
 #endif /* FORMAT_H */

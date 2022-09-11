@@ -1,13 +1,13 @@
 #include "format.h"
 
 #include <openssl/evp.h>
-
 #include "block.h"
 #include "cryptfs.h"
 #include "crypto.h"
 #include "fat.h"
 #include "print.h"
 #include "xalloc.h"
+
 
 bool is_already_formatted(const char *file_path)
 {
@@ -107,4 +107,14 @@ void format_fs(const char *path, char *rsa_passphrase)
     free(cfs);
 
     fclose(file);
+}
+
+int file_exist(const char *file_path)
+{
+    FILE *file = fopen(file_path, "r");
+    if (file == NULL)
+        return 0; // File does not exist
+
+    fclose(file);
+    return 1; // File exists
 }

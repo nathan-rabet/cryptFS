@@ -4,20 +4,33 @@
 #include "format.h"
 #include "passphrase.h"
 #include "print.h"
-
+#define PATH_MAX 4096
 int main(int argc, char *argv[])
 {
     char *passphrase = NULL;
     char *path = NULL;
+    char filepath[PATH_MAX];
+    snprintf(filepath, PATH_MAX, "%s/%s", getenv("HOME"), ".cryptfs/private.pem");
+    int keys_already_generated = file_exist(filepath);
+
     switch (argc)
     {
     case 2:
         path = argv[1];
-
+        // If the keys already exist, ask the user if he wants to use them
+        if (keys_already_generated)
+        {
+            printf("Keys already generated, do you want to use them? [y/N] ");
+            char answer = getchar();
+            getchar(); // Remove the newline
+            if (answer == 'y' || answer == 'Y')
+                 break;
+        }
         // Ask for passphrase
         printf("Do you want to secure your key with a passphrase? (y/n): ");
         char answer = getchar();
-        getchar(); // Consume the newline
+        getchar();  //Consume the newline
+
         if (answer != 'y' && answer != 'Y')
             print_warning(
                 "No passphrase will be used. The key may be exposed.\n");
