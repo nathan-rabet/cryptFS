@@ -34,7 +34,7 @@ uint32_t get_block_size()
     return BLOCK_SIZE;
 }
 
-int read_blocks(size_t start_block, size_t nb_blocks, void *buffer)
+int read_blocks(block_t start_block, size_t nb_blocks, void *buffer)
 {
     assert(BLOCK_PATH != NULL);
     assert(BLOCK_SIZE != 0);
@@ -67,7 +67,7 @@ int read_blocks(size_t start_block, size_t nb_blocks, void *buffer)
     return 0;
 }
 
-int write_blocks(size_t start_block, size_t nb_blocks, void *buffer)
+int write_blocks(block_t start_block, size_t nb_blocks, void *buffer)
 {
     assert(BLOCK_PATH != NULL);
     assert(BLOCK_SIZE != 0);
@@ -100,7 +100,7 @@ int write_blocks(size_t start_block, size_t nb_blocks, void *buffer)
     return 0;
 }
 
-int read_blocks_with_decryption(unsigned char *aes_key, size_t start_block,
+int read_blocks_with_decryption(unsigned char *aes_key, block_t start_block,
                                 size_t nb_blocks, void *buffer)
 {
     unsigned char *encrypted_buffer = xmalloc(nb_blocks, get_block_size());

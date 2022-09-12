@@ -35,6 +35,8 @@
         "array": "c",
         "assert.h": "c",
         "cerrno": "c",
-        "passphrase.h": "c"
+        "passphrase.h": "c",
+        "err.h": "c",
+        "cryptofuse.h": "c"
     }
 }
