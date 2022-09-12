@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+typedef size_t block_t;
+
 /**
  * @brief Set the device path global variable.
  *
@@ -42,7 +44,7 @@ uint32_t get_block_size();
  *
  * @return 0 on success, -1 on error.
  */
-int read_blocks(size_t start_block, size_t nb_blocks, void *buffer);
+int read_blocks(block_t start_block, size_t nb_blocks, void *buffer);
 
 /**
  * @brief Write blocks to the device.
@@ -53,7 +55,7 @@ int read_blocks(size_t start_block, size_t nb_blocks, void *buffer);
  *
  * @return 0 on success, -1 on error.
  */
-int write_blocks(size_t start_block, size_t nb_blocks, void *buffer);
+int write_blocks(block_t start_block, size_t nb_blocks, void *buffer);
 
 /**
  * @brief Read a block from the device and decrypt it.
@@ -64,7 +66,7 @@ int write_blocks(size_t start_block, size_t nb_blocks, void *buffer);
  * @param buffer The buffer to fill with the blocks.
  * @return int 0 on success, -1 on error.
  */
-int read_blocks_with_decryption(unsigned char *aes_key, size_t start_block,
+int read_blocks_with_decryption(unsigned char *aes_key, block_t start_block,
                                 size_t nb_blocks, void *buffer);
 
 /**
@@ -76,7 +78,7 @@ int read_blocks_with_decryption(unsigned char *aes_key, size_t start_block,
  * @param buffer The buffer containing the blocks.
  * @return int 0 on success, -1 on error.
  */
-int write_blocks_with_encryption(unsigned char *aes_key, size_t start_block,
+int write_blocks_with_encryption(unsigned char *aes_key, block_t start_block,
                                  size_t nb_blocks, void *buffer);
 
 #endif /* BLOCK_H */
