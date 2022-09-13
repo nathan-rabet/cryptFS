@@ -8,7 +8,7 @@ on:
 
 jobs:
   test_suite:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
 
@@ -26,12 +26,6 @@ jobs:
           sudo cp -r /tmp/criterion/criterion-v2.3.3/lib/* /usr/local/lib &&
           sudo cp -r /tmp/criterion/criterion-v2.3.3/lib/* /usr/lib &&
           sudo cp -r /tmp/criterion/criterion-v2.3.3/include/* /usr/local/include
-
-      - name: Adding REPO for openssl & libssl-dev (3.0.2)
-        run: echo "deb http://fr.archive.ubuntu.com/ubuntu/ jammy main restricted" | sudo tee /etc/apt/sources.list
-
-      - name: Installing openssl & libssl-dev (3.0.2)
-        run: sudo apt-get update && sudo apt-get install -y openssl libssl-dev
 
       - name: Checking version of openssl
         run: openssl version
