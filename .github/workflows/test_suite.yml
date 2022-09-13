@@ -30,11 +30,8 @@ jobs:
       - name: Adding REPO for openssl & libssl-dev (3.0.2)
         run: echo "deb http://fr.archive.ubuntu.com/ubuntu/ jammy main restricted" | sudo tee /etc/apt/sources.list
 
-      - name: Removing old openssl & libssl-dev
-        run: sudo apt-get remove openssl libssl-dev
-
       - name: Installing openssl & libssl-dev (3.0.2)
-        run: sudo apt-get update && sudo apt-get install -y openssl=3.0.2-0ubuntu1.6 libssl-dev=3.0.2-0ubuntu1.6
+        run: sudo apt-get update && sudo apt-get install -y openssl libssl-dev
 
       - name: Checking version of openssl
         run: openssl version
