@@ -1,6 +1,6 @@
 #ifndef CRYPTOFUSE_H
 
-#define FUSE_USE_VERSION 24
+#define FUSE_USE_VERSION 30
 
 #include <fuse/fuse.h>
 
