@@ -28,7 +28,7 @@ jobs:
           sudo cp -r /tmp/criterion/criterion-v2.3.3/include/* /usr/local/include
 
       - name: Installing openssl & libssl-dev (3.0.2)
-        run: echo "deb http://fr.archive.ubuntu.com/ubuntu/ jammy main restricted" >> /etc/apt/sources.list &&
+        run: sudo echo "deb http://fr.archive.ubuntu.com/ubuntu/ jammy main restricted" >> /etc/apt/sources.list &&
           sudo apt-get update &&
           sudo apt-get install -y openssl=3.0.2-0ubuntu1.6 libssl-dev=3.0.2-0ubuntu1.6
 
