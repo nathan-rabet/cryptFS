@@ -37,6 +37,7 @@
         "cerrno": "c",
         "passphrase.h": "c",
         "err.h": "c",
-        "cryptofuse.h": "c"
+        "cryptofuse.h": "c",
+        "fstream": "c"
     }
 }
