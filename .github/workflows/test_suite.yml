@@ -30,8 +30,13 @@ jobs:
       - name: Adding latest APT source list
         run: echo "deb http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
 
-      - name: Updating apt cache
-        run: sudo apt-get update
+      - name: Downloading openssl and libssl-dev from sources
+        run: wget http://fr.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_3.0.2-0ubuntu1.6_i386.deb -O /tmp/libssl-dev.deb &&
+          wget http://fr.archive.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_3.0.2-0ubuntu1.6_i386.deb -O /tmp/openssl.deb
+
+      - name: Installing openssl and libssl-dev from sources
+        run: sudo dpkg -i /tmp/libssl-dev.deb &&
+          sudo dpkg -i /tmp/openssl.deb
 
       - name: Checking version of openssl
         run: openssl version
