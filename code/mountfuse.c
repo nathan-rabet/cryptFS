@@ -1,13 +1,14 @@
 #define FUSE_USE_VERSION 30
 
+#include <errno.h>
+#include <fcntl.h>
 #include <fuse/fuse.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <time.h>
-#include <string.h>
 #include <stdlib.h>
-#include <errno.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
 
 static const char * test = "Hello World!";
 
@@ -78,7 +79,7 @@ int main(int argc, char** argv)
 {
     if (argc < 3)
     {
-        printf("Usage: %s <mountpoint> <key>", argv[0]);
+        printf("Usage: %s <mountpoint> <key>\n", argv[0]);
     }
     return fuse_main(argc, argv, &cryptfs_ops, NULL);
 }
