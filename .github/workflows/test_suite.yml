@@ -27,16 +27,8 @@ jobs:
           sudo cp -r /tmp/criterion/criterion-v2.3.3/lib/* /usr/lib &&
           sudo cp -r /tmp/criterion/criterion-v2.3.3/include/* /usr/local/include
 
-      - name: Adding latest APT source list
-        run: echo "deb http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
-
-      - name: Downloading openssl and libssl-dev from sources
-        run: wget http://fr.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_3.0.2-0ubuntu1.6_amd64.deb -O /tmp/libssl-dev.deb &&
-          wget http://fr.archive.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_3.0.2-0ubuntu1.6_amd64.deb -O /tmp/openssl.deb
-
-      - name: Installing openssl and libssl-dev from sources
-        run: sudo dpkg -i /tmp/libssl-dev.deb &&
-          sudo dpkg -i /tmp/openssl.deb
+      - name: Installing openssl & libssl-dev
+        run: sudo apt-get install openssl=3.0.2-0ubuntu1.6 libssl-dev=3.0.2-0ubuntu1.6
 
       - name: Checking version of openssl
         run: openssl version
