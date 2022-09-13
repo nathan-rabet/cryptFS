@@ -30,11 +30,17 @@ jobs:
       - name: Updating apt cache
         run: sudo apt-get update
 
-      - name: Installing openssl
-        run: sudo apt install libssl-dev openssl
+      - name: Installing openssl (including headers)
+        run: curl -sL https://github.com/openssl/openssl/archive/refs/heads/master.zip -o /tmp/openssl.zip &&
+          sudo unzip /tmp/openssl.zip -d /tmp/openssl &&
+          cd /tmp/openssl/openssl-master &&
+          sudo ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl &&
+          sudo make &&
+          sudo make install &&
+          sudo cp -r /usr/local/ssl/include/openssl /usr/local/include
 
       - name: Checking version of openssl
         run: openssl version
-        
+
       - name: Running `make check`
         run: make check
