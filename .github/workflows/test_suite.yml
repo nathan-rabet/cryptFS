@@ -29,6 +29,7 @@ jobs:
 
       - name: Installing openssl
         run: sudo apt install libssl-dev openssl
+          openssl version
         
       - name: Running `make check`
         run: make check
