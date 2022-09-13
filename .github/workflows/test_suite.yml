@@ -31,8 +31,8 @@ jobs:
         run: echo "deb http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
 
       - name: Downloading openssl and libssl-dev from sources
-        run: wget http://fr.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_3.0.2-0ubuntu1.6_i386.deb -O /tmp/libssl-dev.deb &&
-          wget http://fr.archive.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_3.0.2-0ubuntu1.6_i386.deb -O /tmp/openssl.deb
+        run: wget http://fr.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_3.0.2-0ubuntu1.6_amd64.deb -O /tmp/libssl-dev.deb &&
+          wget http://fr.archive.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_3.0.2-0ubuntu1.6_amd64.deb -O /tmp/openssl.deb
 
       - name: Installing openssl and libssl-dev from sources
         run: sudo dpkg -i /tmp/libssl-dev.deb &&
