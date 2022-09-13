@@ -27,8 +27,12 @@ jobs:
           sudo cp -r /tmp/criterion/criterion-v2.3.3/lib/* /usr/lib &&
           sudo cp -r /tmp/criterion/criterion-v2.3.3/include/* /usr/local/include
 
+      - name: Updating apt cache
+        run: sudo apt-get update
+
       - name: Installing openssl
         run: sudo apt install libssl-dev openssl
+
       - name: Checking version of openssl
         run: openssl version
         
