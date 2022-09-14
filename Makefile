@@ -20,6 +20,8 @@ TESTS_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(TESTS_SRC:.c=.o))
 FORMAT_SRC = $(SRC_CODE_DIR)/formater.c
 FORMAT_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(FORMAT_SRC:.c=.o))
 
+all : formater
+	
 formater: $(BUILD_DIR)/formater $(OBJ)
 
 $(BUILD_DIR)/formater: $(FORMAT_OBJ) $(OBJ)
