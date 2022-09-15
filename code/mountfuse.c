@@ -10,7 +10,84 @@
 #include <time.h>
 #include <unistd.h>
 
-static const char * test = "Hello World!";
+char dir_list[1024][1024];
+int dir_list_count = -1;
+
+char files_list[1024][1024];
+int files_list_count = -1;
+
+char files_content[1024][1024];
+int files_content_count = -1;
+
+void add_dir(char *dir_name)
+{
+    dir_list_count++;
+    strcpy(dir_list[dir_list_count], dir_name);
+}
+
+int is_dir(const char *dir_name)
+{
+    dir_name++;
+    int i;
+    for (i = 0; i <= dir_list_count; i++)
+    {
+        if (strcmp(dir_list[i], dir_name) == 0)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void add_file(const char *file_name)
+{
+    files_list_count++;
+    strcpy(files_list[files_list_count], file_name);
+    files_content_count++;
+    strcpy(files_content[files_content_count], "");
+}
+
+int is_file(const char *file_name)
+{
+    file_name++;
+    int i;
+    for (i = 0; i <= files_list_count; i++)
+    {
+        if (strcmp(files_list[i], file_name) == 0)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int get_file_index(const char *file_name)
+{
+    file_name++;
+    int i;
+    for (i = 0; i <= files_list_count; i++)
+    {
+        if (strcmp(files_list[i], file_name) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+void write_to_file(const char *file_name, const char *buf, size_t size, off_t offset)
+{
+    int index = get_file_index(file_name);
+    if (index == -1)
+    {
+        return;
+    }
+    int i;
+    for (i = 0; i < size; i++)
+    {
+        files_content[index][offset + i] = buf[i];
+    }
+}
+
 
 int cryptfs_getattr(const char *path, struct stat *st)
 { 
@@ -38,7 +115,14 @@ int cryptfs_readdir(const char *path, void *data, fuse_fill_dir_t callback, off_
 {
     callback(data, ".", NULL, 0);
     callback(data, "..", NULL, 0);
-    callback(data, "file.txt", NULL, 0);
+    
+    if ( strcmp(path, "/") == 0) // if we want to list the root directory
+    {
+        for (int i = 0; i <= dir_list_count; i++)
+            callback(data, dir_list[i], NULL,0);
+         for (int i = 0; i <= files_list_count; i++)
+            callback(data, files_list[i], NULL,0);
+    }
     return 0;
 }
 int cryptfs_open(const char *path, struct fuse_file_info *file)
@@ -54,20 +138,6 @@ int cryptfs_open(const char *path, struct fuse_file_info *file)
 int cryptfs_read(const char *path, char *buf, size_t sz, off_t offset,
             struct fuse_file_info *file)
 {
-    size_t len;
-    (void) file;
-    if(strcmp(path, test) != 0)
-        return -ENOENT;
-
-    len = strlen(test);
-    if (offset < len) {
-        if (offset + sz > len)
-            sz = len - offset;
-        memcpy(buf, test + offset, sz);
-    } else
-        sz = 0;
-
-    return sz;
 }
 static struct fuse_operations cryptfs_ops = {
     .getattr = cryptfs_getattr,
