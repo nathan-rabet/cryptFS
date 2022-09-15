@@ -47,19 +47,6 @@ void add_file(const char *file_name)
     strcpy(files_content[files_content_count], "");
 }
 
-int is_file(const char *file_name)
-{
-    file_name++;
-    int i;
-    for (i = 0; i <= files_list_count; i++)
-    {
-        if (strcmp(files_list[i], file_name) == 0)
-        {
-            return 1;
-        }
-    }
-    return 0;
-}
 
 int get_file_index(const char *file_name)
 {
