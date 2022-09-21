@@ -38,6 +38,7 @@
         "passphrase.h": "c",
         "err.h": "c",
         "cryptofuse.h": "c",
-        "fstream": "c"
+        "fstream": "c",
+        "fuse.h": "c"
     }
 }
