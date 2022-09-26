@@ -5,8 +5,10 @@
 
 /**
  * @brief Ask user for passphrase (only print '*' for each char on stdout)
+ * @param confirm if true, ask user to confirm passphrase
+ * @return char* the chosen passphrase
  */
-char *ask_user_passphrase(void);
+char *ask_user_passphrase(bool confirm);
 
 /**
  * @brief Check if a PEM encoded RSA private key has a passphrase

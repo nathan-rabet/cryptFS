@@ -11,21 +11,29 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Werror -Iinclude -g -std=gnu99 -D_ISOC11_SOURCE
 LDFLAGS = -lm -lcrypto $(FSANITIZE)
 
-SRC = $(shell find $(SRC_CORE_DIR) -name '*.c')
+SRC = $(shell find $(FS_CORE_DIR) -name '*.c')
 OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(SRC:.c=.o))
 
 TESTS_SRC = $(shell find $(TESTS_DIR) -name '*.c')
 TESTS_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(TESTS_SRC:.c=.o))
 
-FORMAT_SRC = $(SRC_CODE_DIR)/formater.c
+FORMAT_SRC = $(SRC_DIR)/formater.c
 FORMAT_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(FORMAT_SRC:.c=.o))
 
-all : formater
+MOUNT_SRC = $(SRC_DIR)/mount_fuse.c
+MOUNT_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(MOUNT_SRC:.c=.o))
+
+all : formater mount
 	
 formater: $(BUILD_DIR)/formater $(OBJ)
+	
+mount: $(BUILD_DIR)/mount $(OBJ)
 
 $(BUILD_DIR)/formater: $(FORMAT_OBJ) $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $(BUILD_DIR)/formater $(LDFLAGS)
+
+$(BUILD_DIR)/mount: $(MOUNT_OBJ) $(OBJ)
+	$(CC) $(CFLAGS) $^ -o $(BUILD_DIR)/mount $(LDFLAGS)
 
 $(BUILD_DIR)/%.o: $(PROJECT_DIR)/%.c
 	mkdir -p $(dir $@)

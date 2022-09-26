@@ -8,18 +8,19 @@
 #include "crypto.h"
 #include "xalloc.h"
 
-const char *BLOCK_PATH = NULL;
+const char *DEVICE_PATH = NULL;
 uint32_t BLOCK_SIZE = 0;
 
 void set_device_path(const char *path)
 {
-    BLOCK_PATH = path;
+    assert(path != NULL);
+    DEVICE_PATH = path;
 }
 
 const char *get_device_path()
 {
-    assert(BLOCK_PATH != NULL);
-    return BLOCK_PATH;
+    assert(DEVICE_PATH != NULL);
+    return DEVICE_PATH;
 }
 
 void set_block_size(const uint32_t size)
@@ -30,13 +31,13 @@ void set_block_size(const uint32_t size)
 
 uint32_t get_block_size()
 {
-    assert(BLOCK_SIZE != 0);
+    assert(BLOCK_SIZE >= CRYPTFS_BLOCK_SIZE_BYTES);
     return BLOCK_SIZE;
 }
 
-int read_blocks(size_t start_block, size_t nb_blocks, void *buffer)
+int read_blocks(block_t start_block, size_t nb_blocks, void *buffer)
 {
-    assert(BLOCK_PATH != NULL);
+    assert(DEVICE_PATH != NULL);
     assert(BLOCK_SIZE != 0);
 
     if (nb_blocks == 0)
@@ -44,7 +45,7 @@ int read_blocks(size_t start_block, size_t nb_blocks, void *buffer)
     if (!buffer)
         return -1;
 
-    FILE *file = fopen(BLOCK_PATH, "r");
+    FILE *file = fopen(DEVICE_PATH, "r");
     if (!file)
         return -1;
 
@@ -67,9 +68,9 @@ int read_blocks(size_t start_block, size_t nb_blocks, void *buffer)
     return 0;
 }
 
-int write_blocks(size_t start_block, size_t nb_blocks, void *buffer)
+int write_blocks(block_t start_block, size_t nb_blocks, void *buffer)
 {
-    assert(BLOCK_PATH != NULL);
+    assert(DEVICE_PATH != NULL);
     assert(BLOCK_SIZE != 0);
 
     if (nb_blocks == 0)
@@ -77,7 +78,7 @@ int write_blocks(size_t start_block, size_t nb_blocks, void *buffer)
     if (buffer == NULL)
         return -1;
 
-    FILE *file = fopen(BLOCK_PATH, "r+");
+    FILE *file = fopen(DEVICE_PATH, "r+");
     if (file == NULL)
         return -1;
 
@@ -100,7 +101,7 @@ int write_blocks(size_t start_block, size_t nb_blocks, void *buffer)
     return 0;
 }
 
-int read_blocks_with_decryption(unsigned char *aes_key, size_t start_block,
+int read_blocks_with_decryption(unsigned char *aes_key, block_t start_block,
                                 size_t nb_blocks, void *buffer)
 {
     unsigned char *encrypted_buffer = xmalloc(nb_blocks, get_block_size());

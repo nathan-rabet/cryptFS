@@ -35,6 +35,16 @@
         "array": "c",
         "assert.h": "c",
         "cerrno": "c",
-        "passphrase.h": "c"
+        "passphrase.h": "c",
+        "err.h": "c",
+        "cryptofuse.h": "c",
+        "fstream": "c",
+        "fuse.h": "c",
+        "stdbool.h": "c",
+        "core_names.h": "c",
+        "bitset": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "utility": "c"
     }
 }
