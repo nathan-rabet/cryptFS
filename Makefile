@@ -11,13 +11,13 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Werror -Iinclude -g -std=gnu99 -D_ISOC11_SOURCE
 LDFLAGS = -lm -lcrypto $(FSANITIZE)
 
-SRC = $(shell find $(SRC_CORE_DIR) -name '*.c')
+SRC = $(shell find $(FS_CORE_DIR) -name '*.c')
 OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(SRC:.c=.o))
 
 TESTS_SRC = $(shell find $(TESTS_DIR) -name '*.c')
 TESTS_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(TESTS_SRC:.c=.o))
 
-FORMAT_SRC = $(SRC_CODE_DIR)/formater.c
+FORMAT_SRC = $(SRC_DIR)/formater.c
 FORMAT_OBJ = $(subst $(PROJECT_DIR),$(BUILD_DIR),$(FORMAT_SRC:.c=.o))
 
 all : formater

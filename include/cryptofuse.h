@@ -30,6 +30,7 @@ int cryptfs_release(const char *path, struct fuse_file_info *file);
 int cryptfs_releasedir(const char *path, struct fuse_file_info *file);
 int cryptfs_create(const char *path, mode_t mode, struct fuse_file_info *file);
 int cryptfs_ftruncate(const char *path, off_t offset, struct fuse_file_info *file);
+int cryptfs_access(const char *path, int mode);
 
 int cryptfs_flush(const char *path, struct fuse_file_info *file);
 int cryptfs_fsync(const char *path, int, struct fuse_file_info *file);
@@ -42,10 +43,8 @@ int cryptfs_rename(const char *path, const char *name);
 int cryptfs_fallocate(const char *path, int, off_t, off_t,
             struct fuse_file_info *file);
 
-static struct fuse_operations cryptfs_ops = {
-    .init = cryptfs_init,
-    .open = cryptfs_open,
-    .read = cryptfs_read
-};
+static struct fuse_operations cryptfs_ops = { .init = cryptfs_init,
+                                              .open = cryptfs_open,
+                                              .read = cryptfs_read };
 
 #endif /* CRYPTOFUSE_H */

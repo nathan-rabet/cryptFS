@@ -39,6 +39,7 @@
         "err.h": "c",
         "cryptofuse.h": "c",
         "fstream": "c",
-        "fuse.h": "c"
+        "fuse.h": "c",
+        "stdbool.h": "c"
     }
 }

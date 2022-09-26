@@ -21,7 +21,6 @@ void internal_error_exit(const char *msg, int error_code, ...)
     fprintf(stderr, RED_STR("[CRYPTFS INTERNAL ERROR]: "));
     fprintf(stderr, msg, args);
 
-#ifdef DEBUG
     // Printing backtrace
     void *array[BACKTRACE_SIZE];
     size_t size;
@@ -35,7 +34,6 @@ void internal_error_exit(const char *msg, int error_code, ...)
     for (i = 0; i < size; i++)
         fprintf(stderr, RED_STR("[CRYPTFS STACK FRAMES]: ") "%s\n", strings[i]);
     free(strings);
-#endif
 
     va_end(args);
     exit(error_code);
