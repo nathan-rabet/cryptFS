@@ -122,4 +122,14 @@ EVP_PKEY *load_rsa_keypair_from_disk(const char *public_key_path,
                                      const char *private_key_path,
                                      char *passphrase);
 
+/**
+ * @brief Loads the RSA private and public keys from the current user's home
+ * directory.
+ *
+ * @param passphrase Gets filled with the passphrase the user enters if he
+ * decides to.
+ * @return EVP_PKEY* The loaded RSA keypair.
+ */
+EVP_PKEY *load_rsa_keypair_from_home(char **passphrase);
+
 #endif /* CRYPTO_H */

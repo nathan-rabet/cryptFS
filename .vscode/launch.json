@@ -51,6 +51,29 @@
             ],
             "preLaunchTask": "make formater"
         },
+        {
+            "name": "mount",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/mount",
+            "args": [
+                "${input:mountDevice}",
+                "${input:mountPath}"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Activer l'impression en mode Pretty pour gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+            ],
+            "preLaunchTask": "make mount"
+        },
     ],
     "inputs": [
         {
@@ -58,6 +81,18 @@
             "description": "Fichier à formater",
             "type": "promptString",
             "default": "test.cfs"
+        },
+        {
+            "id": "mountDevice",
+            "description": "Disque à monter",
+            "type": "promptString",
+            "default": "test.cfs"
+        },
+        {
+            "id": "mountPath",
+            "description": "Point de montage",
+            "type": "promptString",
+            "default": "mnt"
         }
     ]
 }

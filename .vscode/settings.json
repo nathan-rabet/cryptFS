@@ -40,6 +40,11 @@
         "cryptofuse.h": "c",
         "fstream": "c",
         "fuse.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "core_names.h": "c",
+        "bitset": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "utility": "c"
     }
 }

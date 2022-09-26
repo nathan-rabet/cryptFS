@@ -11,7 +11,7 @@
 
 #define PASSPHRASE_MAX_LENGTH 50
 
-char *ask_user_passphrase(void)
+char *ask_user_passphrase(bool confirm)
 {
     char *passphrase = NULL;
     char *passphrase_check = NULL;
@@ -31,32 +31,43 @@ char *ask_user_passphrase(void)
 
     while (true)
     {
-        printf("Enter a passphrase (MAX : %u): ", PASSPHRASE_MAX_LENGTH);
+        confirm
+            ? printf("Enter a passphrase (MAX : %u): ", PASSPHRASE_MAX_LENGTH)
+            : printf("Enter passphrase: ");
 
         if (scanf("%ms", &passphrase) != 1 || printf("\n") < 0)
             internal_error_exit("Failed to read passphrase", EXIT_FAILURE);
         if (strlen(passphrase) <= PASSPHRASE_MAX_LENGTH)
         {
-            // Ask again to be sure the user entered the passphrase correctly
-            printf("Enter the same passphrase again: ");
-
-            if (scanf("%ms", &passphrase_check) != 1 || printf("\n") < 0)
-                internal_error_exit("Failed to read second passphrase",
-                                    EXIT_FAILURE);
-
-            if (strcmp(passphrase, passphrase_check) == 0)
+            if (confirm)
             {
-                print_success("Passphrase is valid!\n");
-                tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
-                free(passphrase_check);
-                getchar(); // Consume the newline
-                return passphrase;
+                // Ask again to be sure the user entered the passphrase
+                // correctly
+                printf("Enter the same passphrase again: ");
+
+                if (scanf("%ms", &passphrase_check) != 1 || printf("\n") < 0)
+                    internal_error_exit("Failed to read second passphrase",
+                                        EXIT_FAILURE);
+                if (strcmp(passphrase, passphrase_check) == 0)
+                {
+                    print_success("Passphrase is valid!\n");
+                    tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
+                    free(passphrase_check);
+                    getchar(); // Consume the newline
+                    return passphrase;
+                }
+                else
+                {
+                    print_warning("Passphrases do not match\n");
+                    free(passphrase_check);
+                    free(passphrase);
+                }
             }
             else
             {
-                print_warning("Passphrases do not match\n");
-                free(passphrase_check);
-                free(passphrase);
+                tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
+                getchar(); // Consume the newline
+                return passphrase;
             }
         }
 
@@ -74,19 +85,12 @@ bool rsa_private_is_encrypted(const char *rsa_path)
     FILE *file = fopen(rsa_path, "r");
     if (!file)
         return false;
-    char line[256];
-    while (fgets(line, sizeof(line), file))
-    {
-        if (strstr(line, "Proc-Type: 4,ENCRYPTED") || strstr(line, "ENCRYPTED"))
-        {
-            fclose(file);
-            return true;
-        }
-        {
-            fclose(file);
-            return true;
-        }
-    }
+    char line[sizeof(
+        "-----BEGIN ENCRYPTED PRIVATE KEY-----")];
+    bool is_private = false;
+    if (fgets(line, sizeof(line), file))
+        is_private = strstr(line, "ENCRYPTED");
+
     fclose(file);
-    return false;
+    return is_private;
 }
