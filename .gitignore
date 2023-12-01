@@ -50,3 +50,27 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Log files
+*.log
+*.log.*
+*.bak
+*.old
+*.orig
+
+# Archive files
+*.tar
+*.tar.*
+*.tgz
+*.gz
+*.bz2
+*.zip
+*.z
+*.7z
+*.xz
+*.rar
+
+# Build files
+build/*
+logs/*
+*.cfs
